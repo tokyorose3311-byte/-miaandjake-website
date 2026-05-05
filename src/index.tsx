@@ -11,6 +11,7 @@ app.use('/manifest.json', serveStatic({ root: './public' }))
 app.use('/icon-192.png', serveStatic({ root: './public' }))
 app.use('/icon-512.png', serveStatic({ root: './public' }))
 app.use('/favicon.ico', serveStatic({ root: './public' }))
+app.use('/book2-cover.png', serveStatic({ root: './public' }))
 
 // Serve game HTML directly from bundled content
 app.get('/game.html', (c) => c.html(gameHTML))
@@ -178,11 +179,16 @@ app.get('/', (c) => {
     /* Second book card */
     .book-cover-2 {
       background: linear-gradient(135deg, #0d3460, #0a1f44);
-      border: 3px solid var(--ocean-bright); border-radius: 20px; padding: 28px 24px;
+      border: 3px solid var(--ocean-bright); border-radius: 20px; padding: 20px 24px;
       text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.35);
       margin-top: 18px;
     }
-    .book-cover-2-emoji { font-size: 48px; display: block; margin-bottom: 10px; }
+    .book-cover-2-img {
+      width: 100%; max-width: 200px; border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+      margin-bottom: 14px; display: block; margin-left: auto; margin-right: auto;
+      border: 2px solid var(--ocean-bright);
+    }
     .book-cover-2-title { font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--ocean-bright); line-height: 1.35; margin-bottom: 4px; }
     .book-cover-2-series { font-size: 11px; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
     .book-cover-2-author { font-size: 13px; color: var(--ocean-light); font-style: italic; margin-bottom: 14px; }
@@ -538,8 +544,7 @@ app.get('/', (c) => {
 
         <!-- Book 2: The Space Hidden in The Bubbles -->
         <div class="book-cover-2">
-          <span class="book-cover-2-emoji">🫧🌌✨</span>
-          <div class="book-cover-2-title">The Space Hidden<br>in The Bubbles</div>
+          <img src="/book2-cover.png" alt="The Space Hidden in The Bubbles by Rose Davenport" class="book-cover-2-img">
           <div class="book-cover-2-series">Quest for Wonders • Book 2</div>
           <div class="book-cover-2-author">By Rose Davenport</div>
           <div class="book-btns">
@@ -551,6 +556,7 @@ app.get('/', (c) => {
         <div class="coming-soon-card">
           <div class="coming-soon-badge">✨ Coming Soon</div>
           <div class="coming-soon-title">The Quest for Wonders:<br>The Science</div>
+          <div style="font-size:12px;color:var(--ocean-light);margin-top:10px;font-style:italic;position:relative;z-index:1;">Cover artwork in progress — stay tuned!</div>
         </div>
 
       </div>
