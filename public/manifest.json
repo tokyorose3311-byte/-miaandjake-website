@@ -1,0 +1,27 @@
+{
+  "name": "Quest for Wonders — The Hidden Stone Beneath the Sea",
+  "short_name": "Mia & Jake",
+  "description": "A magical underwater adventure game for kids by Rose Davenport. Play offline, color pages, solve puzzles!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1f44",
+  "theme_color": "#0a1f44",
+  "orientation": "landscape-primary",
+  "prefer_related_applications": false,
+  "scope": "/",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["games", "education"]
+}

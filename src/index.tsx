@@ -1,12 +1,1036 @@
 import { Hono } from 'hono'
-import { renderer } from './renderer'
+import { serveStatic } from 'hono/cloudflare-workers'
+import { gameHTML } from './game-content'
 
 const app = new Hono()
 
-app.use(renderer)
+// Serve static files
+app.use('/static/*', serveStatic({ root: './public' }))
+app.use('/sw.js', serveStatic({ root: './public' }))
+app.use('/manifest.json', serveStatic({ root: './public' }))
+app.use('/icon-192.png', serveStatic({ root: './public' }))
+app.use('/icon-512.png', serveStatic({ root: './public' }))
+app.use('/favicon.ico', serveStatic({ root: './public' }))
+
+// Serve game HTML directly from bundled content
+app.get('/game.html', (c) => c.html(gameHTML))
+app.get('/game', (c) => c.html(gameHTML))
 
 app.get('/', (c) => {
-  return c.render(<h1>Hello!</h1>)
+  return c.html(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quest for Wonders — The Hidden Stone Beneath the Sea</title>
+  <meta name="description" content="A magical underwater adventure for brave kids. Free game, coloring pages, and story time videos by Rose Davenport.">
+  <meta name="theme-color" content="#0a1f44">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mia &amp; Jake">
+  <link rel="manifest" href="/manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --ocean-deep: #0a1f44;
+      --ocean-mid: #0d4f7c;
+      --ocean-bright: #00b4d8;
+      --ocean-light: #90e0ef;
+      --gold: #ffd60a;
+      --gold-dark: #e09800;
+      --coral: #ff6b6b;
+      --mint: #06d6a0;
+      --white: #f0faff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Nunito', sans-serif; background: var(--ocean-deep); color: var(--white); overflow-x: hidden; }
+
+    /* BUBBLES */
+    .bubbles-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bubble { position: absolute; bottom: -60px; border-radius: 50%; background: rgba(144,224,239,0.1); border: 1px solid rgba(144,224,239,0.2); animation: rise linear infinite; }
+    @keyframes rise { 0% { transform: translateY(0); opacity: 0.6; } 100% { transform: translateY(-110vh); opacity: 0; } }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 30px;
+      background: rgba(10,31,68,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,180,216,0.25);
+    }
+    .nav-logo { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--gold); text-decoration: none; }
+    .nav-links { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+    .nav-links a { color: var(--ocean-light); text-decoration: none; font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 30px; transition: background 0.2s; }
+    .nav-links a:hover { background: rgba(0,180,216,0.2); color: var(--white); }
+    .nav-yt { background: linear-gradient(135deg,#ff0000,#cc0000) !important; color: #fff !important; }
+
+    /* Educator Dropdown */
+    .nav-dropdown { position: relative; display: inline-block; }
+    .nav-dropdown-btn {
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--ocean-deep) !important;
+      font-weight: 800; border: none; font-family: inherit; font-size: 13px;
+      padding: 7px 13px; border-radius: 30px;
+      display: inline-flex; align-items: center; gap: 4px;
+      box-shadow: 0 2px 12px rgba(255,214,10,0.35);
+      transition: filter 0.2s;
+    }
+    .nav-dropdown-btn:hover { filter: brightness(1.1); }
+    .nav-dropdown-content {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: linear-gradient(160deg, #0a1f44 0%, #0d4f7c 100%);
+      border: 2px solid var(--gold); border-radius: 14px;
+      min-width: 250px; box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+      padding: 8px; z-index: 1100;
+    }
+    .nav-dropdown-content a {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--ocean-light) !important; text-decoration: none;
+      font-weight: 700; font-size: 13px; padding: 10px 14px;
+      border-radius: 8px; transition: background 0.2s; background: transparent !important;
+    }
+    .nav-dropdown-content a:hover { background: rgba(255,214,10,0.15) !important; color: var(--gold) !important; }
+    .nav-dropdown-content .dd-divider { height: 1px; background: rgba(0,180,216,0.2); margin: 4px 8px; }
+    .nav-dropdown.open .nav-dropdown-content { display: block; animation: dropFade 0.2s ease-out; }
+    @keyframes dropFade { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 120px 30px 80px; z-index: 1;
+    }
+    .hero-sparkles { font-size: 44px; margin-bottom: 14px; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .hero h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(38px,7vw,76px); line-height: 1.1;
+      color: var(--gold);
+      text-shadow: 0 0 30px rgba(255,214,10,0.6), 0 4px 0 var(--gold-dark);
+      margin-bottom: 10px; animation: glow 3s ease-in-out infinite;
+    }
+    @keyframes glow {
+      0%,100% { text-shadow: 0 0 20px rgba(255,214,10,0.5), 0 4px 0 var(--gold-dark); }
+      50% { text-shadow: 0 0 50px rgba(255,214,10,0.9), 0 4px 0 var(--gold-dark); }
+    }
+    .hero-sub { font-family: 'Fredoka One', cursive; font-size: clamp(18px,3vw,32px); color: var(--ocean-light); margin-bottom: 24px; }
+    .hero-desc { max-width: 580px; font-size: 18px; line-height: 1.7; color: rgba(240,250,255,0.85); margin-bottom: 36px; }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 30px; }
+    .btn { display: inline-block; padding: 14px 32px; border-radius: 50px; font-family: 'Fredoka One', cursive; font-size: 18px; text-decoration: none; transition: transform 0.2s; cursor: pointer; border: none; }
+    .btn:hover { transform: translateY(-3px) scale(1.04); }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--ocean-deep); box-shadow: 0 6px 24px rgba(255,214,10,0.5); }
+    .btn-secondary { background: linear-gradient(135deg, var(--ocean-bright), var(--ocean-mid)); color: var(--white); box-shadow: 0 6px 24px rgba(0,180,216,0.4); }
+    .scroll-hint { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); color: rgba(144,224,239,0.5); font-size: 13px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; animation: bounce 2s ease-in-out infinite; }
+    @keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+
+    /* Install Banner */
+    #installBanner { display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep)); border:2px solid var(--gold); border-radius:16px; padding:14px 24px; z-index:5000; box-shadow:0 8px 30px rgba(0,0,0,0.4); align-items:center; gap:14px; max-width:90vw; }
+    #installBanner.show { display:flex; }
+    #installBanner p { font-size:14px; font-weight:700; color:var(--white); margin:0; }
+    #installBtn { padding:8px 18px; background:linear-gradient(135deg,var(--gold),var(--gold-dark)); color:var(--ocean-deep); border:none; border-radius:20px; font-weight:800; font-size:13px; cursor:pointer; font-family:'Nunito',sans-serif; }
+    #dismissBtn { background:none; border:none; color:rgba(144,224,239,0.6); font-size:18px; cursor:pointer; }
+
+    /* ── SECTIONS ── */
+    section { position: relative; z-index: 1; padding: 70px 30px; }
+    .section-inner { max-width: 980px; margin: 0 auto; }
+    .section-tag { display: inline-block; font-family: 'Fredoka One', cursive; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--ocean-bright); margin-bottom: 10px; }
+    .section-title { font-family: 'Fredoka One', cursive; font-size: clamp(28px,5vw,48px); color: var(--gold); margin-bottom: 14px; line-height: 1.2; }
+    .section-intro { font-size: 17px; line-height: 1.8; color: rgba(240,250,255,0.8); max-width: 700px; }
+    .divider { width: 55px; height: 4px; background: linear-gradient(90deg, var(--gold), var(--ocean-bright)); border-radius: 2px; margin: 18px 0 32px; }
+
+    /* ── BOOK SECTION ── */
+    #book { background: rgba(13,79,124,0.2); }
+    .book-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 40px; align-items: start; margin-top: 36px; }
+
+    /* Book cover card */
+    .book-cover {
+      background: linear-gradient(135deg, var(--ocean-mid), var(--ocean-deep));
+      border: 3px solid var(--gold); border-radius: 20px; padding: 36px 24px;
+      text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      animation: float 4s ease-in-out infinite;
+    }
+    .book-cover-emoji { font-size: 72px; display: block; margin-bottom: 16px; }
+    .book-cover-title { font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--gold); line-height: 1.3; }
+    .book-cover-author { font-size: 14px; color: var(--ocean-light); margin-top: 8px; font-style: italic; }
+    .book-btns { margin-top: 22px; display: flex; flex-direction: column; gap: 10px; }
+    .book-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 18px; border-radius: 30px; color: #fff; text-decoration: none; font-weight: 800; font-size: 13px; transition: transform 0.2s; }
+    .book-btn:hover { transform: translateY(-2px); }
+    .book-btn.bn { background: linear-gradient(135deg,#00b4d8,#0d4f7c); }
+    .book-btn.kb { background: linear-gradient(135deg,#06d6a0,#0d4f7c); }
+
+    /* 3-paragraph book description card */
+    .about-book-card {
+      background: rgba(13,79,124,0.35);
+      border: 2px solid rgba(0,180,216,0.3);
+      border-radius: 18px; padding: 28px 26px;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+    .about-book-card p {
+      font-size: 15.5px; color: rgba(240,250,255,0.9);
+      line-height: 1.85; margin-bottom: 16px;
+    }
+    .about-book-card p:last-child { margin-bottom: 0; }
+    .about-book-card strong { color: var(--gold); font-weight: 800; }
+
+    /* Book feature rows */
+    .book-features { display: flex; flex-direction: column; gap: 14px; }
+    .book-feature { display: flex; gap: 14px; align-items: flex-start; background: rgba(0,180,216,0.08); border: 1px solid rgba(0,180,216,0.18); border-radius: 14px; padding: 16px 18px; }
+    .book-feature-icon { font-size: 28px; flex-shrink: 0; }
+    .book-feature h3 { font-size: 16px; font-weight: 800; color: var(--gold); margin-bottom: 4px; }
+    .book-feature p { font-size: 14px; color: rgba(240,250,255,0.8); line-height: 1.6; }
+
+    /* ── GAME SECTION ── */
+    #game { background: rgba(6,214,160,0.04); }
+    .game-wrapper { background: rgba(10,31,68,0.8); border: 3px solid var(--ocean-bright); border-radius: 20px; overflow: hidden; box-shadow: 0 0 50px rgba(0,180,216,0.25); margin-top: 36px; }
+    .game-header { background: linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep)); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,180,216,0.25); }
+    .game-header h3 { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--gold); }
+    .game-badge { background: linear-gradient(135deg,var(--mint),#04a97d); color: var(--ocean-deep); font-weight: 800; font-size: 12px; padding: 5px 12px; border-radius: 20px; }
+    .game-frame-container { position: relative; width: 100%; padding-bottom: 75%; background: #000; }
+    .game-frame-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    .game-instructions { display: flex; gap: 16px; padding: 16px 24px; background: rgba(0,0,0,0.3); flex-wrap: wrap; }
+    .game-key { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ocean-light); font-weight: 700; }
+    .key-badge { background: rgba(0,180,216,0.2); border: 1px solid rgba(0,180,216,0.4); border-radius: 6px; padding: 3px 8px; font-size: 12px; font-family: monospace; }
+
+    /* ── YOUTUBE SECTION ── */
+    #youtube { background: rgba(255,0,0,0.04); }
+    .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; border: 3px solid rgba(255,0,0,0.35); box-shadow: 0 0 40px rgba(255,0,0,0.15); margin-top: 36px; margin-bottom: 24px; }
+    .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 13px; }
+
+    /* ── ACTIVITIES ── */
+    #activities { background: rgba(255,107,107,0.04); }
+    .activities-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 20px; margin-top: 36px; }
+    .activity-card { background: linear-gradient(135deg,rgba(13,79,124,0.5),rgba(10,31,68,0.8)); border: 2px solid rgba(0,180,216,0.25); border-radius: 20px; padding: 28px 20px; text-align: center; transition: transform 0.25s,border-color 0.25s; cursor: pointer; }
+    .activity-card:hover { transform: translateY(-6px); border-color: var(--gold); }
+    .activity-icon { font-size: 52px; margin-bottom: 14px; display: block; }
+    .activity-card h3 { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--gold); margin-bottom: 8px; }
+    .activity-card p { font-size: 14px; color: rgba(240,250,255,0.75); line-height: 1.6; }
+    .activity-btn { display: inline-block; margin-top: 16px; padding: 9px 20px; background: linear-gradient(135deg,var(--ocean-bright),var(--ocean-mid)); border-radius: 30px; font-weight: 800; font-size: 13px; color: #fff; }
+
+    /* ── MESSAGES ── */
+    #messages { background: rgba(255,214,10,0.03); }
+    .message-form { background: rgba(13,79,124,0.35); border: 2px solid rgba(0,180,216,0.25); border-radius: 20px; padding: 28px; margin-top: 32px; margin-bottom: 32px; }
+    .message-form input, .message-form textarea { width: 100%; background: rgba(0,0,0,0.3); border: 2px solid rgba(0,180,216,0.25); border-radius: 12px; color: var(--white); font-family: 'Nunito',sans-serif; font-size: 15px; padding: 11px 14px; margin-bottom: 12px; outline: none; transition: border-color 0.2s; }
+    .message-form input:focus, .message-form textarea:focus { border-color: var(--gold); }
+    .message-form textarea { min-height: 80px; resize: vertical; }
+    .messages-wall { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 14px; }
+    .message-bubble { background: linear-gradient(135deg,rgba(13,79,124,0.6),rgba(10,31,68,0.9)); border: 2px solid rgba(0,180,216,0.2); border-radius: 16px; padding: 16px 18px; animation: pop-in 0.3s ease; }
+    @keyframes pop-in { from { transform:scale(0.85);opacity:0; } to { transform:scale(1);opacity:1; } }
+    .message-name { font-weight: 800; color: var(--gold); font-size: 14px; margin-bottom: 5px; }
+    .message-text { font-size: 14px; color: rgba(240,250,255,0.85); line-height: 1.6; }
+
+    /* ── EDUCATOR SECTION ── */
+    #educator { background: linear-gradient(160deg, rgba(10,31,68,0.8) 0%, rgba(13,79,124,0.4) 50%, rgba(10,31,68,0.8) 100%); }
+    .edu-header-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, rgba(255,214,10,0.18), rgba(255,214,10,0.06));
+      border: 2px solid rgba(255,214,10,0.5); border-radius: 50px;
+      padding: 8px 20px; font-family: 'Fredoka One', cursive;
+      font-size: 14px; color: var(--gold); margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+    .edu-card {
+      background: rgba(13,79,124,0.45);
+      border: 2px solid rgba(255,214,10,0.4);
+      border-radius: 20px; padding: 32px 28px; margin-top: 20px;
+      box-shadow: 0 0 40px rgba(255,214,10,0.08);
+      transition: border-color 0.25s;
+    }
+    .edu-card:hover { border-color: var(--gold); }
+    .edu-card-title {
+      font-family: 'Fredoka One', cursive; color: var(--gold);
+      font-size: 22px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .edu-card ul { list-style: none; padding: 0; margin: 0; }
+    .edu-card ul li {
+      padding: 12px 0 12px 36px; position: relative;
+      color: rgba(240,250,255,0.88); font-size: 15px; line-height: 1.75;
+      border-bottom: 1px solid rgba(0,180,216,0.12);
+    }
+    .edu-card ul li:last-child { border-bottom: none; }
+    .edu-card ul li::before { content: '✨'; position: absolute; left: 6px; top: 13px; }
+    .edu-card ul li strong { color: var(--gold); font-weight: 800; }
+
+    /* Pricing tiles */
+    .pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 20px; }
+    .price-tile {
+      background: rgba(10,31,68,0.7);
+      border: 2px solid rgba(255,214,10,0.35); border-radius: 16px;
+      padding: 24px 18px; text-align: center;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .price-tile:hover { transform: translateY(-5px); border-color: var(--gold); box-shadow: 0 10px 30px rgba(255,214,10,0.2); }
+    .price-tile.featured {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(255,214,10,0.1), rgba(10,31,68,0.8));
+      box-shadow: 0 0 30px rgba(255,214,10,0.2);
+    }
+    .price-tile.featured::before {
+      content: '⭐ MOST POPULAR';
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--ocean-deep); font-size: 10px; font-weight: 800;
+      padding: 4px 12px; border-radius: 20px; white-space: nowrap;
+    }
+    .price-tile-label { font-size: 13px; color: var(--ocean-light); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 10px; }
+    .price-tile-amount { font-family: 'Fredoka One', cursive; font-size: 34px; color: var(--gold); margin: 10px 0 6px; line-height: 1; }
+    .price-tile-note { font-size: 12px; color: rgba(240,250,255,0.6); line-height: 1.5; }
+    .price-tile-features { list-style: none; padding: 0; margin: 14px 0 0; text-align: left; }
+    .price-tile-features li { font-size: 13px; color: rgba(240,250,255,0.8); padding: 5px 0 5px 20px; position: relative; border-bottom: 1px solid rgba(0,180,216,0.1); }
+    .price-tile-features li:last-child { border-bottom: none; }
+    .price-tile-features li::before { content: '✓'; position: absolute; left: 0; color: var(--mint); font-weight: 800; }
+
+    /* Curriculum CCSS / NGSS */
+    .curriculum-section { margin-top: 20px; }
+    .curriculum-card {
+      background: rgba(6,214,160,0.06);
+      border-left: 4px solid var(--mint); border-radius: 14px;
+      padding: 24px 26px; margin-bottom: 16px;
+    }
+    .curriculum-card h4 {
+      font-family: 'Fredoka One', cursive; font-size: 18px;
+      color: var(--mint); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .curriculum-card p { color: rgba(240,250,255,0.85); font-size: 15px; line-height: 1.85; margin-bottom: 12px; }
+    .curriculum-card p:last-child { margin-bottom: 0; }
+    .curriculum-card strong { color: var(--mint); }
+    .code-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .code-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(6,214,160,0.15); border: 1.5px solid rgba(6,214,160,0.45);
+      border-radius: 8px; padding: 6px 12px;
+      font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700;
+      color: var(--mint); letter-spacing: 0.5px;
+      transition: background 0.2s;
+    }
+    .code-badge:hover { background: rgba(6,214,160,0.28); }
+    .code-badge.ngss {
+      background: rgba(0,180,216,0.12); border-color: rgba(0,180,216,0.4);
+      color: var(--ocean-bright);
+    }
+    .code-badge.ngss:hover { background: rgba(0,180,216,0.25); }
+    .credits-bar {
+      background: rgba(255,214,10,0.07); border: 2px solid rgba(255,214,10,0.3);
+      border-radius: 12px; padding: 16px 20px; margin-top: 16px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .credits-label { font-size: 14px; font-weight: 700; color: var(--ocean-light); }
+    .credits-count {
+      font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--gold);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .credits-used-bar { flex: 1; min-width: 160px; height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+    .credits-used-fill { height: 100%; background: linear-gradient(90deg, var(--mint), var(--ocean-bright)); border-radius: 10px; transition: width 1s ease; }
+
+    .edu-cta { margin-top: 28px; text-align: center; }
+
+    /* ── HOSPITALS ── */
+    #hospitals { background: rgba(255,107,107,0.03); }
+    .contact-box { background: rgba(13,79,124,0.55); border: 2px solid var(--gold); border-radius: 20px; padding: 36px 28px; text-align: center; box-shadow: 0 0 40px rgba(255,214,10,0.12); margin-top: 28px; }
+
+    /* ── MODALS ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--ocean-deep); border: 3px solid var(--gold); border-radius: 22px; padding: 32px; max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 0 60px rgba(255,214,10,0.25); }
+    .modal-close { position: absolute; top: 14px; right: 14px; background: rgba(255,107,107,0.2); border: none; color: var(--coral); font-size: 20px; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-weight: 800; }
+    .modal h2 { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--gold); margin-bottom: 6px; }
+    .modal p { color: rgba(240,250,255,0.8); margin-bottom: 20px; font-size: 15px; }
+
+    /* Coloring */
+    .coloring-tools { display: flex; gap: 8px; padding: 12px 0; flex-wrap: wrap; align-items: center; }
+    .color-swatch { width: 34px; height: 34px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: transform 0.15s,border-color 0.15s; flex-shrink: 0; }
+    .color-swatch:hover { transform: scale(1.2); }
+    .color-swatch.active { border-color: var(--white); transform: scale(1.25); }
+    .tool-btn { padding: 7px 14px; border-radius: 20px; border: 2px solid rgba(0,180,216,0.4); background: rgba(0,180,216,0.12); color: var(--white); font-weight: 800; font-size: 13px; cursor: pointer; transition: background 0.2s; font-family: 'Nunito',sans-serif; }
+    .tool-btn:hover { background: rgba(0,180,216,0.28); }
+    .page-btn.active { background: rgba(255,214,10,0.2); border-color: var(--gold); color: var(--gold); }
+    .brush-size { display: flex; align-items: center; gap: 6px; color: var(--ocean-light); font-size: 13px; font-weight: 700; }
+    .brush-size input { width: 75px; }
+    .coloring-area { background: #fff; border-radius: 12px; overflow: hidden; position: relative; }
+    #coloringCanvas { display: block; width: 100%; cursor: crosshair; touch-action: none; }
+
+    /* Word search */
+    .word-grid { display: grid; grid-template-columns: repeat(10,1fr); gap: 3px; margin: 14px 0; }
+    .word-cell { background: rgba(0,180,216,0.12); border: 1px solid rgba(0,180,216,0.18); border-radius: 6px; text-align: center; padding: 9px 0; font-weight: 800; font-size: 15px; cursor: pointer; transition: background 0.15s; user-select: none; }
+    .word-cell.selected { background: rgba(255,214,10,0.3); color: var(--gold); }
+    .word-cell.found { background: rgba(6,214,160,0.3); color: var(--mint); }
+    .word-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .word-chip { padding: 5px 12px; background: rgba(0,180,216,0.12); border: 1px solid rgba(0,180,216,0.25); border-radius: 20px; font-weight: 700; font-size: 13px; color: var(--ocean-light); }
+    .word-chip.found { background: rgba(6,214,160,0.2); color: var(--mint); text-decoration: line-through; }
+
+    /* Quiz */
+    .quiz-question { font-size: 18px; font-weight: 800; color: var(--gold); margin-bottom: 18px; line-height: 1.4; }
+    .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+    .quiz-option { padding: 12px 18px; background: rgba(0,180,216,0.1); border: 2px solid rgba(0,180,216,0.25); border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: background 0.2s; text-align: left; color: var(--white); font-family: 'Nunito',sans-serif; }
+    .quiz-option:hover { background: rgba(0,180,216,0.22); }
+    .quiz-option.correct { background: rgba(6,214,160,0.25); border-color: var(--mint); color: var(--mint); }
+    .quiz-option.wrong { background: rgba(255,107,107,0.18); border-color: var(--coral); color: var(--coral); }
+    .quiz-feedback { font-size: 16px; font-weight: 800; margin-top: 14px; min-height: 24px; }
+
+    /* ── FOOTER ── */
+    footer { position: relative; z-index: 1; text-align: center; padding: 40px 20px; border-top: 1px solid rgba(0,180,216,0.18); color: rgba(144,224,239,0.55); font-size: 14px; }
+    footer span { color: var(--coral); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      nav { padding: 10px 16px; }
+      .nav-links > a { display: none; }
+      .nav-links > a.nav-yt { display: inline-block; }
+      .nav-dropdown { display: inline-block; }
+      .book-grid { grid-template-columns: 1fr; }
+      section { padding: 50px 18px; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .edu-card { padding: 22px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bubbles-bg" id="bubblesBg"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">🌊 Quest for Wonders</a>
+  <div class="nav-links">
+    <a href="#book">📖 The Book</a>
+    <a href="#game">🎮 Play</a>
+    <a href="#youtube">▶️ Videos</a>
+    <a href="#activities">🎨 Activities</a>
+    <a href="#messages">💌 Messages</a>
+    <div class="nav-dropdown" id="eduDropdown">
+      <button class="nav-dropdown-btn" onclick="toggleEduDropdown(event)">🎓 For Educators ▾</button>
+      <div class="nav-dropdown-content">
+        <a href="#educator" onclick="closeEduDropdown()"><i class="fas fa-book-open" style="width:16px;color:var(--gold)"></i> Educator Package</a>
+        <div class="dd-divider"></div>
+        <a href="#educator-pricing" onclick="closeEduDropdown()"><i class="fas fa-dollar-sign" style="width:16px;color:var(--gold)"></i> Pricing &amp; Licensing</a>
+        <div class="dd-divider"></div>
+        <a href="#educator-curriculum" onclick="closeEduDropdown()"><i class="fas fa-graduation-cap" style="width:16px;color:var(--gold)"></i> Curriculum Alignment</a>
+        <div class="dd-divider"></div>
+        <a href="mailto:hello@questforwonders.com" onclick="closeEduDropdown()"><i class="fas fa-envelope" style="width:16px;color:var(--gold)"></i> Request a Quote</a>
+      </div>
+    </div>
+    <a href="https://www.youtube.com/@childrenstorytimewithrose" target="_blank" class="nav-yt">▶️ YouTube</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-sparkles">✨🌊💎🌊✨</div>
+  <h1>Quest for Wonders</h1>
+  <p class="hero-sub">The Hidden Stone Beneath the Sea</p>
+  <p class="hero-desc">A magical underwater adventure for brave hearts everywhere. ❤️<br>Made with love for kids in hospital — you are stronger than you know!</p>
+  <div class="hero-btns">
+    <a href="#game" class="btn btn-primary">🎮 Play the Game!</a>
+    <a href="#book" class="btn btn-secondary">📖 About the Book</a>
+  </div>
+  <div class="scroll-hint"><span>Explore below</span><span style="font-size:18px">▼</span></div>
+</section>
+
+<!-- BOOK -->
+<section id="book">
+  <div class="section-inner">
+    <span class="section-tag">📖 The Story</span>
+    <h2 class="section-title">About the Book</h2>
+    <div class="divider"></div>
+    <p class="section-intro">Dive into a world of wonder with Mia and Jake on their incredible underwater quest!</p>
+
+    <div class="book-grid">
+      <!-- Left: Cover + Buy buttons -->
+      <div>
+        <div class="book-cover">
+          <span class="book-cover-emoji">🧜‍♀️💎🌊</span>
+          <div class="book-cover-title">Quest for Wonders:<br>The Hidden Stone<br>Beneath the Sea</div>
+          <div class="book-cover-author">By Rose Davenport</div>
+          <div class="book-btns">
+            <a href="https://www.barnesandnoble.com/w/the-quest-for-wonders-rose-davenport/1149324721?ean=2940185141434" target="_blank" class="book-btn bn">🎧 Audiobook — Barnes &amp; Noble</a>
+            <a href="https://www.barnesandnoble.com/w/the-quest-for-wonders-rose-davenport/1149616892?ean=9798279679355" target="_blank" class="book-btn bn">📖 Paperback — Barnes &amp; Noble</a>
+            <a href="https://www.kobo.com/my/en/ebook/the-quest-for-wonders-the-hidden-stone-beneath-the-sea" target="_blank" class="book-btn kb">📱 eBook — Kobo</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: 3-para description card + features -->
+      <div>
+        <!-- 3-PARAGRAPH BOOK CARD with gold-highlighted bold keywords -->
+        <div class="about-book-card">
+          <p><strong>The Quest For Wonders: The Hidden Stone Beneath the Sea</strong> is a magical underwater adventure that invites young readers into a world of <strong>mystery</strong>, <strong>courage</strong>, and <strong>imagination</strong>.</p>
+          <p>When Mia and Jake discover a <strong>mysterious map</strong>, they are drawn into an unforgettable journey beneath the ocean's surface. Surrounded by colorful sea life and hidden pathways, they uncover secrets that have been waiting for generations. But as they search for the <strong>hidden stone</strong>, they begin to realize that the greatest discoveries come from <strong>bravery</strong>, <strong>curiosity</strong>, and <strong>believing in themselves</strong>.</p>
+          <p>This beautifully illustrated children's book brings the ocean to life with <strong>vivid imagery</strong> and <strong>engaging storytelling</strong>, making it perfect for young readers who love <strong>adventure</strong>, <strong>exploration</strong>, and <strong>magical discoveries</strong>.</p>
+        </div>
+
+        <div class="book-features">
+          <div class="book-feature"><span class="book-feature-icon">🧜‍♀️</span><div><h3>Meet Mia &amp; Jake</h3><p>Two brave friends who never give up, even when the ocean gets dark and scary. Just like you!</p></div></div>
+          <div class="book-feature"><span class="book-feature-icon">💎</span><div><h3>The Glowing Stones</h3><p>Hidden deep beneath the sea, these magical stones have the power to light up even the darkest places.</p></div></div>
+          <div class="book-feature"><span class="book-feature-icon">🌟</span><div><h3>A Story of Courage</h3><p>A tale about friendship, bravery, and believing in yourself — no matter what challenges come your way.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section id="game">
+  <div class="section-inner">
+    <span class="section-tag">🎮 Play</span>
+    <h2 class="section-title">Play the Adventure Game!</h2>
+    <div class="divider"></div>
+    <p class="section-intro">Help Mia and Jake collect all 15 glowing stones! Avoid the jellyfish, sea urchins, and rocks!</p>
+    <div class="game-wrapper">
+      <div class="game-header">
+        <h3>✨ The Quest for The Glowing Stones ✨</h3>
+        <span class="game-badge">🎮 Free to Play!</span>
+      </div>
+      <div class="game-frame-container">
+        <iframe src="/game.html" title="Quest for the Glowing Stones Game"></iframe>
+      </div>
+      <div class="game-instructions">
+        <div class="game-key"><span class="key-badge">← →</span> Move</div>
+        <div class="game-key"><span class="key-badge">↑ ↓</span> Up/Down</div>
+        <div class="game-key"><span class="key-badge">M</span> Play as Mia</div>
+        <div class="game-key"><span class="key-badge">J</span> Play as Jake</div>
+        <div class="game-key"><span class="key-badge">💎</span> Collect 15 stones!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- YOUTUBE -->
+<section id="youtube">
+  <div class="section-inner">
+    <span class="section-tag" style="color:#ff4444">▶️ Watch &amp; Listen</span>
+    <h2 class="section-title">Story Time with Rose!</h2>
+    <div class="divider"></div>
+    <p class="section-intro">Sit back and enjoy all 4 Quest for Wonders stories! Perfect for kids in hospital. 🌊✨</p>
+    <div class="yt-wrap">
+      <iframe src="https://www.youtube.com/embed/videoseries?list=PL41anyOr3nR3jrvx7rgC-L7YejzTnIFcv&rel=0&modestbranding=1" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen title="Quest for Wonders Story Time"></iframe>
+    </div>
+    <div style="text-align:center;margin-top:10px;">
+      <a href="https://www.youtube.com/@childrenstorytimewithrose" target="_blank" style="display:inline-flex;align-items:center;gap:10px;padding:14px 36px;background:linear-gradient(135deg,#ff0000,#cc0000);color:#fff;text-decoration:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:18px;box-shadow:0 6px 24px rgba(255,0,0,0.35);">▶️ Visit Our YouTube Channel!</a>
+    </div>
+  </div>
+</section>
+
+<!-- ACTIVITIES -->
+<section id="activities">
+  <div class="section-inner">
+    <span class="section-tag">🎨 Fun Activities</span>
+    <h2 class="section-title">Activities for You!</h2>
+    <div class="divider"></div>
+    <p class="section-intro">While you rest and get better, try these fun activities inspired by the story!</p>
+    <div class="activities-grid">
+      <div class="activity-card" onclick="openModal('coloringModal')">
+        <span class="activity-icon">🎨</span>
+        <h3>Color Mia &amp; Jake!</h3>
+        <p>Use your favorite colors to bring our heroes to life. Print it out too!</p>
+        <span class="activity-btn">Start Coloring →</span>
+      </div>
+      <div class="activity-card" onclick="openModal('wordSearchModal')">
+        <span class="activity-icon">🔍</span>
+        <h3>Word Search</h3>
+        <p>Can you find all the hidden words from the story?</p>
+        <span class="activity-btn">Find the Words →</span>
+      </div>
+      <div class="activity-card" onclick="openModal('quizModal')">
+        <span class="activity-icon">🧠</span>
+        <h3>Story Quiz</h3>
+        <p>Test what you know about Mia, Jake, and their underwater adventure!</p>
+        <span class="activity-btn">Take the Quiz →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MESSAGES -->
+<section id="messages">
+  <div class="section-inner">
+    <span class="section-tag">💌 Messages</span>
+    <h2 class="section-title">Leave a Message!</h2>
+    <div class="divider"></div>
+    <p class="section-intro">Share your adventure! Tell us your favorite part or your high score! 🌊</p>
+    <div class="message-form">
+      <input type="text" id="msgName" placeholder="Your name (e.g. Superhero Sam 🦸)" maxlength="40">
+      <textarea id="msgText" placeholder="Write your message here..." maxlength="200"></textarea>
+      <button class="btn btn-primary" onclick="postMessage()" style="font-size:16px;padding:11px 28px;">💌 Send Message</button>
+    </div>
+    <div class="messages-wall" id="messagesWall"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- EDUCATOR SECTION                          -->
+<!-- ══════════════════════════════════════════ -->
+<section id="educator">
+  <div class="section-inner">
+    <div class="edu-header-badge">🎓 FOR EDUCATORS &amp; SCHOOLS</div>
+    <h2 class="section-title">The Educator Package</h2>
+    <div class="divider"></div>
+    <p class="section-intro">Bring <strong style="color:var(--gold)">Quest for Wonders</strong> into your classroom. A complete digital learning ecosystem combining <strong style="color:var(--gold)">magical storytelling</strong> with rigorous, standards-aligned instruction.</p>
+
+    <!-- Package contents -->
+    <div class="edu-card">
+      <div class="edu-card-title">📚 The Educator Package Includes:</div>
+      <ul>
+        <li><strong>UNLIMITED SCHOOL-WIDE ACCESS:</strong> A site licence for the entire Mia &amp; Jake Digital Library, including the latest release, <em>The Hidden Stone Beneath the Sea</em>, plus any future updates to the game.</li>
+        <li><strong>THE ADVENTURE APP ECOSYSTEM:</strong> Full access to the Mia and Jake Game App (iOS / Android / Web). Students solve puzzles, decode ancient scripts, and navigate global maps to progress through the story.</li>
+        <li><strong>PRINTABLE RESOURCE PACKS:</strong> Curriculum-aligned worksheets, coloring activities, word searches, comprehension quizzes and creative-writing prompts — ready to print &amp; go.</li>
+        <li><strong>EDUCATOR GUIDE &amp; LESSON PLANS:</strong> Step-by-step lesson plans mapped to CCSS and NGSS standards, discussion questions, and differentiated extension tasks for every ability level.</li>
+        <li><strong>PROFESSIONAL DEVELOPMENT SUPPORT:</strong> Onboarding video walkthroughs and a private teacher community for sharing ideas and best practice.</li>
+      </ul>
+    </div>
+
+    <!-- PRICING TILES -->
+    <div class="edu-card" id="educator-pricing" style="margin-top:20px;">
+      <div class="edu-card-title">💰 Investment &amp; Licensing</div>
+      <div class="pricing-grid">
+        <!-- Single Classroom -->
+        <div class="price-tile">
+          <div class="price-tile-label">Single Classroom</div>
+          <div class="price-tile-amount">$495</div>
+          <div class="price-tile-note">per year · one classroom</div>
+          <ul class="price-tile-features">
+            <li>Up to 35 student accounts</li>
+            <li>Full game &amp; activity access</li>
+            <li>Printable resource pack</li>
+            <li>1 teacher licence</li>
+          </ul>
+        </div>
+        <!-- Whole School – Featured -->
+        <div class="price-tile featured">
+          <div class="price-tile-label">Whole School</div>
+          <div class="price-tile-amount">$2,450</div>
+          <div class="price-tile-note">per year · site-wide licence</div>
+          <ul class="price-tile-features">
+            <li>Unlimited student accounts</li>
+            <li>All classroom features</li>
+            <li>Dedicated educator guide</li>
+            <li>All teacher licences</li>
+            <li>Priority support</li>
+          </ul>
+        </div>
+        <!-- District-Wide -->
+        <div class="price-tile">
+          <div class="price-tile-label">District-Wide</div>
+          <div class="price-tile-amount" style="font-size:22px;padding-top:6px;">Custom Quote</div>
+          <div class="price-tile-note">multi-school pricing</div>
+          <ul class="price-tile-features">
+            <li>All schools in district</li>
+            <li>Volume discount available</li>
+            <li>Dedicated account manager</li>
+            <li>Custom onboarding</li>
+          </ul>
+        </div>
+      </div>
+      <div class="edu-cta">
+        <a href="mailto:hello@questforwonders.com" class="btn btn-primary" style="display:inline-block;font-size:16px;padding:13px 30px;text-decoration:none;font-family:'Fredoka One',cursive;">✉️ Request a Quote / Licence</a>
+      </div>
+    </div>
+
+    <!-- CURRICULUM ALIGNMENT: CCSS + NGSS with codes -->
+    <div class="edu-card curriculum-section" id="educator-curriculum" style="margin-top:20px;">
+      <div class="edu-card-title">📝 Curriculum Alignment: Meeting Your Educational Goals</div>
+
+      <!-- CCSS Card -->
+      <div class="curriculum-card">
+        <h4><i class="fas fa-book"></i> Common Core State Standards (CCSS) — ELA &amp; Literacy</h4>
+        <p><strong>The Quest for Wonders</strong> develops critical literacy skills through evidence-based reading, comprehension strategies, and rich academic vocabulary embedded in meaningful narrative contexts.</p>
+        <p>The story seamlessly introduces <strong>Tier 2 and Tier 3 academic vocabulary</strong> covering marine biology and global geography, supporting vocabulary acquisition aligned with reading informational text standards.</p>
+        <p>Through structured comprehension activities, students practise <strong>asking and answering questions</strong>, <strong>identifying main idea</strong>, and <strong>citing textual evidence</strong> — foundational skills across all grade bands.</p>
+        <div class="code-badges">
+          <span class="code-badge" title="Reading: Informational Text — Key Ideas and Details">CCSS.ELA-LITERACY.RI.3.1</span>
+          <span class="code-badge" title="Reading: Informational Text — Key Ideas (Grade 4)">CCSS.ELA-LITERACY.RI.4.1</span>
+          <span class="code-badge" title="Reading: Informational Text — Key Ideas (Grade 5)">CCSS.ELA-LITERACY.RI.5.1</span>
+          <span class="code-badge" title="Reading: Vocabulary Acquisition and Use">CCSS.ELA-LITERACY.L.3.4</span>
+          <span class="code-badge" title="Vocabulary Acquisition (Grade 4)">CCSS.ELA-LITERACY.L.4.4</span>
+          <span class="code-badge" title="Vocabulary Acquisition (Grade 5)">CCSS.ELA-LITERACY.L.5.4</span>
+          <span class="code-badge" title="Reading: Literature — Key Ideas and Details">CCSS.ELA-LITERACY.RL.3.1</span>
+          <span class="code-badge" title="Reading: Literature — Craft and Structure">CCSS.ELA-LITERACY.RL.4.4</span>
+          <span class="code-badge" title="Writing: Text Types and Purposes">CCSS.ELA-LITERACY.W.3.3</span>
+          <span class="code-badge" title="Speaking and Listening: Comprehension">CCSS.ELA-LITERACY.SL.3.2</span>
+        </div>
+      </div>
+
+      <!-- NGSS Card -->
+      <div class="curriculum-card">
+        <h4><i class="fas fa-flask"></i> Next Generation Science Standards (NGSS) — Earth &amp; Life Sciences</h4>
+        <p>The <em>Hidden Stone</em> quest fosters scientific curiosity through hands-on exploration of <strong>earth and life sciences</strong>. Students investigate real-world phenomena encountered by Mia and Jake, applying the three dimensions of NGSS: <strong>Science &amp; Engineering Practices</strong>, <strong>Disciplinary Core Ideas</strong>, and <strong>Crosscutting Concepts</strong>.</p>
+        <p>Core concepts include <strong>ocean ecosystems and biodiversity</strong>, <strong>light filtration through water</strong>, <strong>underwater pressure</strong>, <strong>food webs</strong>, and <strong>adaptation of marine organisms</strong> — each anchored to specific performance expectations below.</p>
+        <div class="code-badges">
+          <span class="code-badge ngss" title="Interdependent Relationships in Ecosystems">3-LS2-1</span>
+          <span class="code-badge ngss" title="Ecosystems: Interactions, Energy, and Dynamics">5-LS2-1</span>
+          <span class="code-badge ngss" title="Earth's Systems — Water Cycle and Oceans">5-ESS2-1</span>
+          <span class="code-badge ngss" title="Waves and Their Applications (Light)">4-PS4-2</span>
+          <span class="code-badge ngss" title="Energy in Earth's Systems">5-ESS3-1</span>
+          <span class="code-badge ngss" title="Heredity and Adaptation">3-LS4-2</span>
+          <span class="code-badge ngss" title="Structure, Function, and Information Processing">4-LS1-1</span>
+          <span class="code-badge ngss" title="Natural Selection and Adaptation">MS-LS4-4</span>
+          <span class="code-badge ngss" title="Ecosystem Dynamics, Functioning, and Resilience">MS-LS2-4</span>
+          <span class="code-badge ngss" title="Earth's Systems: Processes that Shape the Earth">MS-ESS2-1</span>
+        </div>
+      </div>
+
+      <!-- Credits / Standards Coverage bar -->
+      <div class="credits-bar">
+        <div>
+          <div class="credits-label">📊 Standards Covered</div>
+          <div style="font-size:12px;color:rgba(144,224,239,0.6);margin-top:2px;">CCSS + NGSS combined alignment</div>
+        </div>
+        <div class="credits-used-bar">
+          <div class="credits-used-fill" style="width:82%" id="creditsFill"></div>
+        </div>
+        <div class="credits-count" id="creditsCount">
+          <span>20</span> <span style="font-size:14px;color:var(--ocean-light);font-weight:700;">/ 20 codes shown</span>
+        </div>
+      </div>
+
+    </div><!-- end curriculum edu-card -->
+
+  </div><!-- end section-inner -->
+</section>
+
+<!-- HOSPITALS & CONTACT -->
+<section id="hospitals">
+  <div class="section-inner">
+    <span class="section-tag">🏥 For Caregivers</span>
+    <h2 class="section-title">Hospitals &amp; Schools — Contact Us for Free Access</h2>
+    <div class="divider"></div>
+    <p class="section-intro">If you work at a hospital, children's ward, school, or care centre and would like to share <strong style="color:var(--gold)">Quest for Wonders</strong> with the kids in your care, we'd love to hear from you. This story, game, and all activities are <strong style="color:var(--gold)">completely free</strong> — always.</p>
+    <div class="contact-box">
+      <div style="font-size:42px;margin-bottom:10px;">💌</div>
+      <p style="font-size:17px;color:rgba(240,250,255,0.9);margin-bottom:18px;line-height:1.6;">Reach out anytime — for partnerships, printable packs,<br>or a personal note for a brave little reader.</p>
+      <a href="mailto:hello@questforwonders.com" class="btn btn-primary" style="display:inline-block;font-size:17px;padding:14px 32px;text-decoration:none;font-family:'Fredoka One',cursive;">📧 hello@questforwonders.com</a>
+      <p style="margin-top:16px;font-size:13px;color:rgba(144,224,239,0.65);">Click the button above to open your email app, or copy the address.</p>
+    </div>
+    <p style="margin-top:22px;font-size:14px;color:rgba(144,224,239,0.6);text-align:center;font-style:italic;">🌊 Made with love for every child who needs a little adventure today. 🌊</p>
+  </div>
+</section>
+
+<footer>
+  <p>🌊 Made with <span>❤️</span> for the bravest kids in the world 🌊</p>
+  <p style="margin-top:8px;font-size:12px;">Quest for Wonders: The Hidden Stone Beneath the Sea — By Rose Davenport</p>
+  <p style="margin-top:6px;font-size:12px;">✨ Dedicated with love to Emerson and Honor Ya Ya ✨</p>
+</footer>
+
+<!-- PWA Install Banner -->
+<div id="installBanner">
+  <p>📱 Add to your home screen to play anytime!</p>
+  <button id="installBtn" onclick="installPWA()">Install App</button>
+  <button id="dismissBtn" onclick="dismissBanner()">✕</button>
+</div>
+
+<!-- ── COLORING MODAL ── -->
+<div class="modal-overlay" id="coloringModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('coloringModal')">✕</button>
+    <h2>🎨 Color Mia &amp; Jake!</h2>
+    <p>Pick a color and draw. Print it out to color with real crayons too!</p>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="tool-btn page-btn active" onclick="loadColoringPage(0,this)">🧜‍♀️ Mia &amp; Jake</button>
+      <button class="tool-btn page-btn" onclick="loadColoringPage(1,this)">🐬 Ocean Scene</button>
+      <button class="tool-btn page-btn" onclick="loadColoringPage(2,this)">🦈 Friendly Shark</button>
+      <button class="tool-btn page-btn" onclick="loadColoringPage(3,this)">👧 Mia's Map</button>
+    </div>
+    <div class="coloring-tools" style="flex-wrap:wrap;">
+      <div id="swatches" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      <div class="brush-size">🖌️ <input type="range" id="brushSize" min="2" max="30" value="10"> <span id="brushSizeVal">10</span></div>
+      <button class="tool-btn" onclick="clearCanvas()">🗑️ Clear</button>
+      <button class="tool-btn" onclick="downloadColoring()">💾 Save</button>
+      <button class="tool-btn" onclick="printMyColoring()">🖨️ Print My Coloring</button>
+      <button class="tool-btn" onclick="printBlank()">🖨️ Print Blank</button>
+    </div>
+    <div class="coloring-area"><canvas id="coloringCanvas" width="680" height="400"></canvas></div>
+  </div>
+</div>
+
+<!-- ── WORD SEARCH MODAL ── -->
+<div class="modal-overlay" id="wordSearchModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('wordSearchModal')">✕</button>
+    <h2>🔍 Word Search</h2>
+    <p>Click the first and last letter of each hidden word. Find all 8 words!</p>
+    <div class="word-grid" id="wordGrid"></div>
+    <div class="word-list" id="wordList"></div>
+    <div id="wordSearchWin" style="display:none;font-family:'Fredoka One',cursive;font-size:22px;color:var(--mint);margin-top:14px;text-align:center;">🎉 Amazing! You found all the words! 🎉</div>
+  </div>
+</div>
+
+<!-- ── QUIZ MODAL ── -->
+<div class="modal-overlay" id="quizModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('quizModal')">✕</button>
+    <h2>🧠 Story Quiz</h2>
+    <p id="quizProgress">Question 1 of 5</p>
+    <div class="quiz-question" id="quizQuestion"></div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+    <div style="margin-top:16px;"><button class="tool-btn" id="quizNextBtn" onclick="nextQuestion()" style="display:none;">Next Question →</button></div>
+    <div id="quizEnd" style="display:none;text-align:center;margin-top:20px;">
+      <div style="font-family:'Fredoka One',cursive;font-size:26px;color:var(--gold);margin-bottom:10px;">🌟 Quiz Complete! 🌟</div>
+      <div id="quizFinalScore" style="font-size:18px;color:var(--mint);margin-bottom:18px;"></div>
+      <button class="btn btn-primary" onclick="restartQuiz()">Try Again!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── EDUCATOR DROPDOWN ──
+function toggleEduDropdown(e) { e.stopPropagation(); document.getElementById('eduDropdown').classList.toggle('open'); }
+function closeEduDropdown() { document.getElementById('eduDropdown').classList.remove('open'); }
+document.addEventListener('click', function(e) { var dd = document.getElementById('eduDropdown'); if (dd && !dd.contains(e.target)) dd.classList.remove('open'); });
+
+// ── PWA ──
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; document.getElementById('installBanner').classList.add('show'); });
+function installPWA() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissBanner(); }); } }
+function dismissBanner() { document.getElementById('installBanner').classList.remove('show'); }
+
+// ── BUBBLES ──
+(function() {
+  const bg = document.getElementById('bubblesBg');
+  for (let i = 0; i < 20; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const s = Math.random() * 50 + 15;
+    b.style.cssText = 'width:' + s + 'px;height:' + s + 'px;left:' + (Math.random() * 100) + '%;animation-duration:' + (Math.random() * 18 + 10) + 's;animation-delay:' + (Math.random() * 12) + 's;';
+    bg.appendChild(b);
+  }
+})();
+
+// ── MODAL ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+
+// ── MESSAGES ──
+const defaultMessages = [
+  { name: 'Superhero Sam 🦸', text: 'I loved the game! Got all 15 stones!' },
+  { name: 'Princess Lily 👸', text: 'Mia is my favorite — she has red hair like me!' },
+  { name: 'Captain Jake ⚓', text: 'The jellyfish are so tricky! Fun game!' }
+];
+let messages = [...defaultMessages];
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function renderMessages() {
+  const emojis = ['🌊','💎','⭐','🐠','🌟','🧜','💙','🐟'];
+  document.getElementById('messagesWall').innerHTML = messages.map(m =>
+    '<div class="message-bubble"><span style="font-size:18px;float:right;">' + emojis[Math.floor(Math.random()*emojis.length)] + '</span><div class="message-name">' + escHtml(m.name) + '</div><div class="message-text">' + escHtml(m.text) + '</div></div>'
+  ).join('');
+}
+function postMessage() {
+  const name = document.getElementById('msgName').value.trim(), text = document.getElementById('msgText').value.trim();
+  if (!name || !text) { alert('Please enter your name and a message! 🌊'); return; }
+  messages.unshift({ name, text });
+  document.getElementById('msgName').value = '';
+  document.getElementById('msgText').value = '';
+  renderMessages();
+}
+renderMessages();
+
+// ── COLORING ──
+const CC = document.getElementById('coloringCanvas'), CCX = CC.getContext('2d');
+let drawing = false, currentColor = '#ff69b4', brushSz = 10, currentPageIdx = 0;
+const palette = ['#ff69b4','#00b4d8','#ffd60a','#06d6a0','#ff6b6b','#a855f7','#f97316','#1a1a2e','#ffffff','#000000'];
+const coloringImgs = [null,
+  'https://www.genspark.ai/api/files/s/owq2oLnY',
+  'https://www.genspark.ai/api/files/s/AywbBfOB',
+  'https://www.genspark.ai/api/files/s/z9BnuJCa'
+];
+(function() {
+  const sw = document.getElementById('swatches');
+  palette.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'color-swatch' + (c === currentColor ? ' active' : '');
+    el.style.background = c;
+    if (c === '#ffffff') el.style.border = '3px solid rgba(144,224,239,0.5)';
+    el.onclick = () => { document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active')); el.classList.add('active'); currentColor = c; };
+    sw.appendChild(el);
+  });
+})();
+document.getElementById('brushSize').addEventListener('input', e => { brushSz = +e.target.value; document.getElementById('brushSizeVal').textContent = brushSz; });
+
+function loadColoringPage(idx, btn) {
+  currentPageIdx = idx;
+  document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (idx === 0) { drawColoringTemplate(); return; }
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    CCX.clearRect(0,0,CC.width,CC.height);
+    CCX.fillStyle = '#ffffff'; CCX.fillRect(0,0,CC.width,CC.height);
+    const scale = Math.min(CC.width/img.width, CC.height/img.height);
+    const w = img.width*scale, h = img.height*scale;
+    CCX.drawImage(img, (CC.width-w)/2, (CC.height-h)/2, w, h);
+  };
+  img.onerror = () => { drawColoringTemplate(); };
+  img.src = coloringImgs[idx];
+}
+function drawColoringTemplate() {
+  CCX.fillStyle = '#e8f4f8'; CCX.fillRect(0,0,CC.width,CC.height);
+  CCX.fillStyle = '#d4a96a'; CCX.fillRect(0,340,680,60);
+  CCX.strokeStyle = '#1a1a2e'; CCX.lineWidth = 2; CCX.strokeRect(0,340,680,60);
+  CCX.strokeStyle = '#2d6a4f'; CCX.lineWidth = 3;
+  [[80,340],[200,340],[500,340],[620,340]].forEach(([x,y]) => {
+    CCX.beginPath(); CCX.moveTo(x,y); CCX.bezierCurveTo(x-20,y-40,x+20,y-80,x,y-120); CCX.stroke();
+  });
+  CCX.strokeStyle = '#1a1a2e'; CCX.lineWidth = 2.5;
+  CCX.fillStyle = '#fff5e6';
+  CCX.beginPath(); CCX.arc(200,160,35,0,Math.PI*2); CCX.fill(); CCX.stroke();
+  CCX.fillStyle = '#1a1a2e';
+  CCX.beginPath(); CCX.arc(188,153,5,0,Math.PI*2); CCX.fill();
+  CCX.beginPath(); CCX.arc(213,153,5,0,Math.PI*2); CCX.fill();
+  CCX.beginPath(); CCX.arc(200,162,8,0,Math.PI); CCX.stroke();
+  CCX.fillStyle = '#555'; CCX.font = 'bold 15px sans-serif'; CCX.textAlign = 'center';
+  CCX.fillText('MIA', 200, 372);
+  CCX.fillStyle = '#fff5e6';
+  CCX.beginPath(); CCX.arc(470,160,35,0,Math.PI*2); CCX.fill(); CCX.stroke();
+  CCX.fillStyle = '#1a1a2e';
+  CCX.beginPath(); CCX.arc(458,153,5,0,Math.PI*2); CCX.fill();
+  CCX.beginPath(); CCX.arc(483,153,5,0,Math.PI*2); CCX.fill();
+  CCX.beginPath(); CCX.arc(470,162,8,0,Math.PI); CCX.stroke();
+  CCX.fillStyle = '#555'; CCX.fillText('JAKE', 470, 372);
+  CCX.font = 'bold 24px sans-serif'; CCX.fillStyle = '#ffd60a'; CCX.textAlign = 'center';
+  CCX.fillText('💎 Color Mia & Jake! 💎', 340, 50);
+}
+function getPos(e) {
+  const r = CC.getBoundingClientRect(), sx = CC.width/r.width, sy = CC.height/r.height;
+  const src = e.touches ? e.touches[0] : e;
+  return { x: (src.clientX - r.left)*sx, y: (src.clientY - r.top)*sy };
+}
+CC.addEventListener('mousedown', e => { drawing = true; const p = getPos(e); CCX.beginPath(); CCX.moveTo(p.x,p.y); });
+CC.addEventListener('mousemove', e => { if (!drawing) return; const p = getPos(e); CCX.lineTo(p.x,p.y); CCX.strokeStyle = currentColor; CCX.lineWidth = brushSz; CCX.lineCap = 'round'; CCX.lineJoin = 'round'; CCX.stroke(); });
+CC.addEventListener('mouseup', () => { drawing = false; });
+CC.addEventListener('mouseleave', () => { drawing = false; });
+CC.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; const p = getPos(e); CCX.beginPath(); CCX.moveTo(p.x,p.y); }, {passive:false});
+CC.addEventListener('touchmove', e => { e.preventDefault(); if (!drawing) return; const p = getPos(e); CCX.lineTo(p.x,p.y); CCX.strokeStyle = currentColor; CCX.lineWidth = brushSz; CCX.lineCap = 'round'; CCX.lineJoin = 'round'; CCX.stroke(); }, {passive:false});
+CC.addEventListener('touchend', () => { drawing = false; });
+function clearCanvas() { loadColoringPage(currentPageIdx, document.querySelectorAll('.page-btn')[currentPageIdx]); }
+function downloadColoring() { const a = document.createElement('a'); a.download = 'my-quest-coloring.png'; a.href = CC.toDataURL(); a.click(); }
+function printMyColoring() {
+  const w = window.open('','_blank');
+  w.document.write('<!DOCTYPE html><html><head><title>My Coloring</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:Arial;}img{max-width:100%;max-height:85vh;}@media print{button{display:none;}}</style></head><body><h2>✨ Quest for Wonders — My Coloring! ✨</h2><img src="' + CC.toDataURL() + '"/><br><button onclick="window.print()" style="padding:12px 28px;font-size:16px;background:#ffd60a;border:none;border-radius:30px;cursor:pointer;font-weight:bold;">🖨️ Print Now</button></body></html>');
+  w.document.close();
+}
+function printBlank() { drawColoringTemplate(); setTimeout(() => printMyColoring(), 100); }
+
+let coloringReady = false;
+document.querySelector('[onclick="openModal(\'coloringModal\')"]').addEventListener('click', () => {
+  if (!coloringReady) { coloringReady = true; setTimeout(() => loadColoringPage(0, document.querySelector('.page-btn')), 50); }
+});
+
+// ── WORD SEARCH ──
+const WORDS = ['OCEAN','STONE','GLOWING','MIA','JAKE','QUEST','CORAL','FISH'];
+const GRID_SIZE = 10;
+let wsGrid=[], wsPlaced=[], wsFoundWords=new Set(), wsFirstClick=null;
+function buildWordSearch() {
+  wsGrid = Array.from({length:GRID_SIZE}, () => Array(GRID_SIZE).fill(''));
+  wsPlaced = [];
+  const dirs = [[0,1],[1,0],[1,1],[-1,1]];
+  WORDS.forEach(word => {
+    for (let a = 0; a < 100; a++) {
+      const [dr,dc] = dirs[Math.floor(Math.random()*dirs.length)];
+      const r = Math.floor(Math.random()*GRID_SIZE), c = Math.floor(Math.random()*GRID_SIZE);
+      let ok = true;
+      for (let i = 0; i < word.length; i++) {
+        const nr = r+dr*i, nc = c+dc*i;
+        if (nr<0||nr>=GRID_SIZE||nc<0||nc>=GRID_SIZE) { ok=false; break; }
+        if (wsGrid[nr][nc] && wsGrid[nr][nc] !== word[i]) { ok=false; break; }
+      }
+      if (ok) {
+        for (let i = 0; i < word.length; i++) wsGrid[r+dr*i][c+dc*i] = word[i];
+        wsPlaced.push({word,r,c,dr,dc}); break;
+      }
+    }
+  });
+  const L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for (let r=0; r<GRID_SIZE; r++) for (let c=0; c<GRID_SIZE; c++) if (!wsGrid[r][c]) wsGrid[r][c] = L[Math.floor(Math.random()*26)];
+}
+function renderWordSearch() {
+  const g = document.getElementById('wordGrid'); g.innerHTML = '';
+  for (let r=0; r<GRID_SIZE; r++) for (let c=0; c<GRID_SIZE; c++) {
+    const cell = document.createElement('div'); cell.className = 'word-cell';
+    cell.textContent = wsGrid[r][c]; cell.dataset.r = r; cell.dataset.c = c;
+    cell.onclick = () => wsClickCell(cell,r,c); g.appendChild(cell);
+  }
+  document.getElementById('wordList').innerHTML = WORDS.map(w => '<span class="word-chip" id="chip-'+w+'">'+w+'</span>').join('');
+}
+function wsClickCell(cell,r,c) {
+  if (!wsFirstClick) { wsFirstClick={r,c,cell}; cell.classList.add('selected'); return; }
+  const {r:r0,c:c0} = wsFirstClick;
+  const dr = Math.sign(r-r0), dc = Math.sign(c-c0);
+  const len = Math.max(Math.abs(r-r0), Math.abs(c-c0)) + 1;
+  let word = '';
+  for (let i=0; i<len; i++) word += wsGrid[r0+dr*i]?.[c0+dc*i] || '';
+  const found = wsPlaced.find(p => p.word===word && p.r===r0 && p.c===c0 && p.dr===dr && p.dc===dc);
+  if (found) {
+    for (let i=0; i<found.word.length; i++) document.getElementById('wordGrid').children[(r0+found.dr*i)*GRID_SIZE+(c0+found.dc*i)].classList.add('found');
+    wsFoundWords.add(found.word);
+    const chip = document.getElementById('chip-'+found.word); if (chip) chip.classList.add('found');
+    if (wsFoundWords.size === WORDS.length) setTimeout(() => { document.getElementById('wordSearchWin').style.display = 'block'; }, 300);
+  }
+  document.querySelectorAll('.word-cell.selected').forEach(c => c.classList.remove('selected'));
+  wsFirstClick = null;
+}
+document.querySelector('[onclick="openModal(\'wordSearchModal\')"]').addEventListener('click', () => {
+  wsFoundWords = new Set(); wsFirstClick = null; buildWordSearch(); renderWordSearch();
+  document.getElementById('wordSearchWin').style.display = 'none';
+});
+
+// ── QUIZ ──
+const quizQuestions = [
+  {q:"What are Mia and Jake searching for in the story?", opts:["Treasure chests","Glowing stones","Sunken ships","Magic pearls"], ans:1},
+  {q:"What color is Mia's hair?", opts:["Blonde","Blue","Red","Black"], ans:2},
+  {q:"What obstacles do Mia and Jake have to avoid?", opts:["Sharks and whales","Jellyfish, sea urchins, and rocks","Crabs and lobsters","Submarines"], ans:1},
+  {q:"How many glowing stones do you need to win the game?", opts:["10","5","20","15"], ans:3},
+  {q:"What do Mia and Jake become when they win?", opts:["Underwater champions","Legendary treasure hunters","Ocean kings","Stone collectors"], ans:1}
+];
+let quizIdx=0, quizScore=0, quizAnswered=false;
+function renderQuiz() {
+  const q = quizQuestions[quizIdx];
+  document.getElementById('quizProgress').textContent = 'Question ' + (quizIdx+1) + ' of ' + quizQuestions.length;
+  document.getElementById('quizQuestion').textContent = q.q;
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('quizNextBtn').style.display = 'none';
+  document.getElementById('quizEnd').style.display = 'none';
+  quizAnswered = false;
+  document.getElementById('quizOptions').innerHTML = q.opts.map((o,i) => '<button class="quiz-option" onclick="answerQuiz('+i+')">'+o+'</button>').join('');
+}
+function answerQuiz(idx) {
+  if (quizAnswered) return; quizAnswered = true;
+  const q = quizQuestions[quizIdx], btns = document.querySelectorAll('.quiz-option');
+  if (idx === q.ans) { btns[idx].classList.add('correct'); document.getElementById('quizFeedback').innerHTML = '<span style="color:var(--mint)">🎉 Correct! Great job!</span>'; quizScore++; }
+  else { btns[idx].classList.add('wrong'); btns[q.ans].classList.add('correct'); document.getElementById('quizFeedback').innerHTML = '<span style="color:var(--coral)">Not quite — but now you know! 💙</span>'; }
+  document.getElementById('quizNextBtn').style.display = 'inline-block';
+}
+function nextQuestion() {
+  quizIdx++;
+  if (quizIdx >= quizQuestions.length) {
+    document.getElementById('quizOptions').innerHTML = '';
+    document.getElementById('quizQuestion').textContent = '';
+    document.getElementById('quizFeedback').textContent = '';
+    document.getElementById('quizNextBtn').style.display = 'none';
+    document.getElementById('quizEnd').style.display = 'block';
+    const pct = Math.round(quizScore/quizQuestions.length*100);
+    document.getElementById('quizFinalScore').innerHTML = 'You got <strong>' + quizScore + '/' + quizQuestions.length + '</strong>! ' + (pct===100?'🏆 Perfect score!':pct>=60?'⭐ Great job!':'💙 Try again!');
+  } else renderQuiz();
+}
+function restartQuiz() { quizIdx = 0; quizScore = 0; renderQuiz(); document.getElementById('quizEnd').style.display = 'none'; }
+document.querySelector('[onclick="openModal(\'quizModal\')"]').addEventListener('click', () => { quizIdx = 0; quizScore = 0; renderQuiz(); });
+
+// ── CREDITS BAR ANIMATION ──
+setTimeout(() => {
+  const fill = document.getElementById('creditsFill');
+  if (fill) fill.style.width = '100%';
+}, 800);
+
+// ── SERVICE WORKER ──
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
+</script>
+</body>
+</html>`)
 })
 
 export default app
