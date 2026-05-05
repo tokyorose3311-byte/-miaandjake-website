@@ -66,7 +66,7 @@ app.get('/', (c) => {
     .nav-yt { background: linear-gradient(135deg,#ff0000,#cc0000) !important; color: #fff !important; }
 
     /* Educator Dropdown */
-    .nav-dropdown { position: relative; display: inline-block; }
+    .nav-dropdown { position: static; display: inline-block; }
     .nav-dropdown-btn {
       cursor: pointer;
       background: linear-gradient(135deg, var(--gold), var(--gold-dark));
@@ -76,24 +76,39 @@ app.get('/', (c) => {
       display: inline-flex; align-items: center; gap: 4px;
       box-shadow: 0 2px 12px rgba(255,214,10,0.35);
       transition: filter 0.2s;
+      position: relative; z-index: 9999;
     }
     .nav-dropdown-btn:hover { filter: brightness(1.1); }
     .nav-dropdown-content {
-      display: none; position: absolute; top: calc(100% + 8px); right: 0;
-      background: linear-gradient(160deg, #0a1f44 0%, #0d4f7c 100%);
-      border: 2px solid var(--gold); border-radius: 14px;
-      min-width: 250px; box-shadow: 0 12px 40px rgba(0,0,0,0.55);
-      padding: 8px; z-index: 1100;
+      visibility: hidden; opacity: 0; pointer-events: none;
+      position: fixed; top: 56px; right: 20px;
+      background: #0a1f44;
+      border: 2px solid var(--gold); border-radius: 16px;
+      min-width: 300px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,214,10,0.2);
+      padding: 10px; z-index: 99999;
+      transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+      transform: translateY(-6px);
     }
-    .nav-dropdown-content a {
-      display: flex; align-items: center; gap: 8px;
-      color: var(--ocean-light) !important; text-decoration: none;
-      font-weight: 700; font-size: 13px; padding: 10px 14px;
-      border-radius: 8px; transition: background 0.2s; background: transparent !important;
+    .nav-dropdown-content.is-open {
+      visibility: visible; opacity: 1; pointer-events: all;
+      transform: translateY(0);
     }
-    .nav-dropdown-content a:hover { background: rgba(255,214,10,0.15) !important; color: var(--gold) !important; }
-    .nav-dropdown-content .dd-divider { height: 1px; background: rgba(0,180,216,0.2); margin: 4px 8px; }
-    .nav-dropdown.open .nav-dropdown-content { display: block; animation: dropFade 0.2s ease-out; }
+    /* Pricing rows inside dropdown */
+    .dd-price-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; border-radius: 10px;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.15s;
+      border: 1px solid transparent;
+      gap: 10px;
+    }
+    .dd-price-row:hover { background: rgba(255,214,10,0.12); border-color: rgba(255,214,10,0.3); }
+    .dd-price-left { display: flex; flex-direction: column; gap: 2px; }
+    .dd-price-title { font-weight: 800; font-size: 14px; color: var(--white); }
+    .dd-price-note { font-size: 11px; color: var(--ocean-light); }
+    .dd-price-amount { font-family: 'Fredoka One', cursive; font-size: 18px; color: var(--gold); white-space: nowrap; }
+    .dd-divider { height: 1px; background: rgba(0,180,216,0.2); margin: 4px 6px; }
     @keyframes dropFade { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
 
     /* ── HERO ── */
@@ -159,6 +174,48 @@ app.get('/', (c) => {
     .book-btn:hover { transform: translateY(-2px); }
     .book-btn.bn { background: linear-gradient(135deg,#00b4d8,#0d4f7c); }
     .book-btn.kb { background: linear-gradient(135deg,#06d6a0,#0d4f7c); }
+
+    /* Second book card */
+    .book-cover-2 {
+      background: linear-gradient(135deg, #0d3460, #0a1f44);
+      border: 3px solid var(--ocean-bright); border-radius: 20px; padding: 28px 24px;
+      text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      margin-top: 18px;
+    }
+    .book-cover-2-emoji { font-size: 48px; display: block; margin-bottom: 10px; }
+    .book-cover-2-title { font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--ocean-bright); line-height: 1.35; margin-bottom: 4px; }
+    .book-cover-2-series { font-size: 11px; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
+    .book-cover-2-author { font-size: 13px; color: var(--ocean-light); font-style: italic; margin-bottom: 14px; }
+
+    /* Coming soon banner */
+    .coming-soon-card {
+      background: linear-gradient(135deg, rgba(255,214,10,0.06), rgba(10,31,68,0.7));
+      border: 2px dashed rgba(255,214,10,0.45); border-radius: 16px;
+      padding: 18px 20px; margin-top: 18px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .coming-soon-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        rgba(255,214,10,0.03) 8px,
+        rgba(255,214,10,0.03) 16px
+      );
+    }
+    .coming-soon-badge {
+      display: inline-block; background: linear-gradient(135deg,var(--gold),var(--gold-dark));
+      color: var(--ocean-deep); font-family: 'Fredoka One', cursive;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+    }
+    .coming-soon-title {
+      font-family: 'Fredoka One', cursive; font-size: 16px;
+      color: var(--gold); line-height: 1.4;
+      text-shadow: 0 0 20px rgba(255,214,10,0.3);
+    }
 
     /* 3-paragraph book description card */
     .about-book-card {
@@ -403,15 +460,39 @@ app.get('/', (c) => {
     <a href="#activities">🎨 Activities</a>
     <a href="#messages">💌 Messages</a>
     <div class="nav-dropdown" id="eduDropdown">
-      <button class="nav-dropdown-btn" onclick="toggleEduDropdown(event)">🎓 For Educators ▾</button>
-      <div class="nav-dropdown-content">
-        <a href="#educator" onclick="closeEduDropdown()"><i class="fas fa-book-open" style="width:16px;color:var(--gold)"></i> Educator Package</a>
+      <button class="nav-dropdown-btn" id="eduDropdownBtn">🎓 For Educators ▾</button>
+      <div class="nav-dropdown-content" id="eduDropdownMenu">
+        <!-- Pricing rows -->
+        <a href="#educator-pricing" class="dd-price-row" id="dd-row-1">
+          <div class="dd-price-left">
+            <span class="dd-price-title">🏫 Single Classroom</span>
+            <span class="dd-price-note">One classroom license</span>
+          </div>
+          <span class="dd-price-amount">$495</span>
+        </a>
         <div class="dd-divider"></div>
-        <a href="#educator-pricing" onclick="closeEduDropdown()"><i class="fas fa-dollar-sign" style="width:16px;color:var(--gold)"></i> Pricing &amp; Licensing</a>
+        <a href="#educator-pricing" class="dd-price-row" id="dd-row-2">
+          <div class="dd-price-left">
+            <span class="dd-price-title">🏛️ Whole School</span>
+            <span class="dd-price-note">Site-wide license</span>
+          </div>
+          <span class="dd-price-amount">$2,450</span>
+        </a>
         <div class="dd-divider"></div>
-        <a href="#educator-curriculum" onclick="closeEduDropdown()"><i class="fas fa-graduation-cap" style="width:16px;color:var(--gold)"></i> Curriculum Alignment</a>
+        <a href="#educator-pricing" class="dd-price-row" id="dd-row-3">
+          <div class="dd-price-left">
+            <span class="dd-price-title">🌐 District-Wide</span>
+            <span class="dd-price-note">Multi-school pricing</span>
+          </div>
+          <span class="dd-price-amount" style="font-size:13px;color:var(--ocean-light)">Email for Quote</span>
+        </a>
         <div class="dd-divider"></div>
-        <a href="mailto:hello@questforwonders.com" onclick="closeEduDropdown()"><i class="fas fa-envelope" style="width:16px;color:var(--gold)"></i> Request a Quote</a>
+        <a href="mailto:hello@questforwonders.com" class="dd-price-row">
+          <div class="dd-price-left">
+            <span class="dd-price-title">✉️ Request a Quote</span>
+            <span class="dd-price-note">Get custom pricing</span>
+          </div>
+        </a>
       </div>
     </div>
     <a href="https://www.youtube.com/@childrenstorytimewithrose" target="_blank" class="nav-yt">▶️ YouTube</a>
@@ -440,8 +521,10 @@ app.get('/', (c) => {
     <p class="section-intro">Dive into a world of wonder with Mia and Jake on their incredible underwater quest!</p>
 
     <div class="book-grid">
-      <!-- Left: Cover + Buy buttons -->
+      <!-- Left: Book 1 + Book 2 + Coming Soon -->
       <div>
+
+        <!-- Book 1: The Hidden Stone Beneath the Sea -->
         <div class="book-cover">
           <span class="book-cover-emoji">🧜‍♀️💎🌊</span>
           <div class="book-cover-title">Quest for Wonders:<br>The Hidden Stone<br>Beneath the Sea</div>
@@ -452,6 +535,24 @@ app.get('/', (c) => {
             <a href="https://www.kobo.com/my/en/ebook/the-quest-for-wonders-the-hidden-stone-beneath-the-sea" target="_blank" class="book-btn kb">📱 eBook — Kobo</a>
           </div>
         </div>
+
+        <!-- Book 2: The Space Hidden in The Bubbles -->
+        <div class="book-cover-2">
+          <span class="book-cover-2-emoji">🫧🌌✨</span>
+          <div class="book-cover-2-title">The Space Hidden<br>in The Bubbles</div>
+          <div class="book-cover-2-series">Quest for Wonders • Book 2</div>
+          <div class="book-cover-2-author">By Rose Davenport</div>
+          <div class="book-btns">
+            <a href="https://www.kobo.com/us/en/ebook/the-space-hidden-in-the-bubbles" target="_blank" class="book-btn kb">📱 Read eBook — Kobo</a>
+          </div>
+        </div>
+
+        <!-- Coming Soon: The Science -->
+        <div class="coming-soon-card">
+          <div class="coming-soon-badge">✨ Coming Soon</div>
+          <div class="coming-soon-title">The Quest for Wonders:<br>The Science</div>
+        </div>
+
       </div>
 
       <!-- Right: 3-para description card + features -->
@@ -778,9 +879,44 @@ app.get('/', (c) => {
 
 <script>
 // ── EDUCATOR DROPDOWN ──
-function toggleEduDropdown(e) { e.stopPropagation(); document.getElementById('eduDropdown').classList.toggle('open'); }
-function closeEduDropdown() { document.getElementById('eduDropdown').classList.remove('open'); }
-document.addEventListener('click', function(e) { var dd = document.getElementById('eduDropdown'); if (dd && !dd.contains(e.target)) dd.classList.remove('open'); });
+(function() {
+  var btn  = document.getElementById('eduDropdownBtn');
+  var menu = document.getElementById('eduDropdownMenu');
+  var open = false;
+
+  function showMenu() {
+    open = true;
+    menu.classList.add('is-open');
+    btn.textContent = '🎓 For Educators ▴';
+    // Position directly below the button
+    var rect = btn.getBoundingClientRect();
+    menu.style.top  = (rect.bottom + 6) + 'px';
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
+  }
+  function hideMenu() {
+    open = false;
+    menu.classList.remove('is-open');
+    btn.textContent = '🎓 For Educators ▾';
+  }
+
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    open ? hideMenu() : showMenu();
+  });
+
+  // Close when clicking a menu link
+  menu.querySelectorAll('a').forEach(function(a) {
+    a.addEventListener('click', function() { hideMenu(); });
+  });
+
+  // Close when clicking anywhere outside
+  document.addEventListener('click', function(e) {
+    if (open && !btn.contains(e.target) && !menu.contains(e.target)) hideMenu();
+  });
+
+  // Close on scroll
+  window.addEventListener('scroll', function() { if (open) hideMenu(); }, { passive: true });
+})();
 
 // ── PWA ──
 let deferredPrompt;
