@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Placeholder Images</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0a1f44;
+            text-align: center;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #0a1f44;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #0a1f44;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0f2d5c;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            min-height: 20px;
+        }
+        .success {
+            color: green;
+        }
+        .info {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Quest for Wonders - Image Generator</h1>
+        
+        <div class="instructions">
+            <strong>Instructions:</strong>
+            <ol>
+                <li>Click each button below to generate and download the placeholder images.</li>
+                <li>Save each image to your <code>questforwonders</code> folder.</li>
+                <li>After all images are downloaded, you can delete this file.</li>
+            </ol>
+        </div>
+
+        <button onclick="generateBackground()">📥 Download: background.png</button>
+        <button onclick="generateColoringMap()">📥 Download: quest_coloring_map.png</button>
+        <button onclick="generateColoring10()">📥 Download: quest_coloring_10.png</button>
+        <button onclick="generateFishColoring()">📥 Download: quest_fish_5_coloring.png</button>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        function downloadImage(canvas, filename) {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = filename;
+            link.click();
+            updateStatus(`✓ Downloaded: ${filename}`, true);
+        }
+
+        function updateStatus(message, success = false) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = success ? 'success' : 'info';
+        }
+
+        function generateBackground() {
+            updateStatus('Generating background.png...');
+            const canvas = document.createElement('canvas');
+            canvas.width = 1200;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            // Ocean gradient background
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a3a66');
+            gradient.addColorStop(0.5, '#0f5a96');
+            gradient.addColorStop(1, '#1a7bb8');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Animated bubbles
+            for (let i = 0; i < 30; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const r = Math.random() * 20 + 5;
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.3})`;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Sand at bottom
+            ctx.fillStyle = '#c2a878';
+            ctx.fillRect(0, canvas.height - 120, canvas.width, 120);
+
+            // Seaweed
+            ctx.strokeStyle = '#2d7a3e';
+            ctx.lineWidth = 8;
+            for (let i = 0; i < 5; i++) {
+                const x = (i + 1) * (canvas.width / 6);
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height - 120);
+                for (let j = 0; j < 5; j++) {
+                    ctx.lineTo(x + Math.sin(j * 0.5) * 15, canvas.height - 120 + j * 30);
+                }
+                ctx.stroke();
+            }
+
+            downloadImage(canvas, 'background.png');
+        }
+
+        function generateColoringMap() {
+            updateStatus('Generating quest_coloring_map.png...');
+            const canvas = document.createElement('canvas');
+            canvas.width = 1000;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            // White background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Title
+            ctx.fillStyle = '#0a1f44';
+            ctx.font = 'bold 36px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Quest Map: Find the Hidden Stone', canvas.width / 2, 50);
+
+            // Draw a simple map with islands and paths
+            ctx.strokeStyle = '#8b4513';
+            ctx.lineWidth = 3;
+            ctx.fillStyle = '#90ee90';
+
+            // Island 1
+            ctx.beginPath();
+            ctx.arc(150, 200, 60, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#000';
+            ctx.font = '20px Arial';
+            ctx.fillText('Start', 150, 210);
+
+            // Island 2
+            ctx.fillStyle = '#90ee90';
+            ctx.beginPath();
+            ctx.arc(400, 150, 70, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#000';
+            ctx.fillText('Forest', 400, 160);
+
+            // Island 3
+            ctx.fillStyle = '#90ee90';
+            ctx.beginPath();
+            ctx.arc(700, 300, 70, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#000';
+            ctx.fillText('Castle', 700, 310);
+
+            // Island 4 - Final
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(500, 550, 80, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText('Hidden Stone!', 500, 560);
+
+            // Paths
+            ctx.strokeStyle = '#d3d3d3';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(200, 200);
+            ctx.lineTo(400, 150);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(450, 150);
+            ctx.lineTo(650, 300);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(650, 350);
+            ctx.lineTo(500, 470);
+            ctx.stroke();
+
+            downloadImage(canvas, 'quest_coloring_map.png');
+        }
+
+        function generateColoring10() {
+            updateStatus('Generating quest_coloring_10.png...');
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // White background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Title
+            ctx.fillStyle = '#0a1f44';
+            ctx.font = 'bold 28px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Coloring Page: Mermaid Friends', canvas.width / 2, 40);
+
+            // Draw a mermaid outline (simple coloring-book style)
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            ctx.fillStyle = 'white';
+
+            // Head
+            ctx.beginPath();
+            ctx.arc(300, 150, 40, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Hair
+            ctx.beginPath();
+            ctx.arc(300, 140, 45, Math.PI, 0, true);
+            ctx.stroke();
+
+            // Body
+            ctx.fillRect(260, 190, 80, 80);
+            ctx.strokeRect(260, 190, 80, 80);
+
+            // Tail (wavy)
+            ctx.beginPath();
+            ctx.moveTo(280, 270);
+            ctx.quadraticCurveTo(250, 300, 270, 330);
+            ctx.quadraticCurveTo(300, 360, 320, 330);
+            ctx.quadraticCurveTo(340, 300, 320, 270);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Eyes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(285, 140, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(315, 140, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Add numbers for colors
+            ctx.fillStyle = '#ff6b6b';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText('1', 300, 160);
+            ctx.fillText('2', 250, 230);
+            ctx.fillText('3', 300, 400);
+
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Arial';
+            ctx.fillText('Color 1: Blue for head', 100, 500);
+            ctx.fillText('Color 2: Purple for body', 100, 530);
+            ctx.fillText('Color 3: Pink for tail', 100, 560);
+
+            downloadImage(canvas, 'quest_coloring_10.png');
+        }
+
+        function generateFishColoring() {
+            updateStatus('Generating quest_fish_5_coloring.png...');
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // White background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Title
+            ctx.fillStyle = '#0a1f44';
+            ctx.font = 'bold 28px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Coloring Page: Tropical Fish', canvas.width / 2, 40);
+
+            // Draw fish outline
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            ctx.fillStyle = 'white';
+
+            // Fish body (ellipse)
+            ctx.beginPath();
+            ctx.ellipse(350, 250, 120, 70, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Fish head
+            ctx.beginPath();
+            ctx.arc(470, 250, 50, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Eye
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(490, 240, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(490, 240, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mouth
+            ctx.strokeStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(510, 260, 15, 0, Math.PI);
+            ctx.stroke();
+
+            // Tail
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.moveTo(230, 250);
+            ctx.lineTo(150, 200);
+            ctx.lineTo(140, 250);
+            ctx.lineTo(150, 300);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Fins
+            ctx.beginPath();
+            ctx.arc(350, 180, 30, 0, Math.PI);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(350, 320, 30, Math.PI, 0);
+            ctx.fill();
+            ctx.stroke();
+
+            // Add numbers
+            ctx.fillStyle = '#ff6b6b';
+            ctx.font = 'bold 18px Arial';
+            ctx.fillText('1', 350, 250);
+            ctx.fillText('2', 150, 250);
+            ctx.fillText('3', 350, 180);
+
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Arial';
+            ctx.fillText('Color 1: Yellow for body', 100, 500);
+            ctx.fillText('Color 2: Orange for tail', 100, 530);
+            ctx.fillText('Color 3: Red for fins', 100, 560);
+
+            downloadImage(canvas, 'quest_fish_5_coloring.png');
+        }
+    </script>
+</body>
+</html>
