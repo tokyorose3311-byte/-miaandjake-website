@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quest-for-wonders-v2';
+const CACHE_NAME = 'quest-for-wonders-v3';
 const ASSETS = [
   '/',
   '/index.html',
