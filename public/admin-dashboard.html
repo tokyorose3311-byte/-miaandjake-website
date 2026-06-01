@@ -219,6 +219,36 @@
     .file-action-btn.rename { background: rgba(0,180,216,0.1); color: var(--ocean-bright); border: 1px solid rgba(0,180,216,0.25); }
     .file-action-btn.rename:hover { filter: brightness(1.2); }
 
+    /* Publish toggle */
+    .publish-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; border-radius: 10px; margin-top: 4px;
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(6,214,160,0.15);
+      gap: 8px;
+    }
+    .publish-label { font-size: 12px; font-weight: 800; color: rgba(144,224,239,0.7); }
+    .publish-toggle {
+      position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0;
+    }
+    .publish-toggle input { opacity: 0; width: 0; height: 0; }
+    .publish-slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: rgba(255,255,255,0.1); border-radius: 24px;
+      transition: background 0.25s;
+      border: 1.5px solid rgba(255,255,255,0.15);
+    }
+    .publish-slider:before {
+      content: ''; position: absolute;
+      width: 16px; height: 16px; left: 3px; top: 2px;
+      background: rgba(144,224,239,0.6); border-radius: 50%;
+      transition: transform 0.25s, background 0.25s;
+    }
+    .publish-toggle input:checked + .publish-slider { background: rgba(6,214,160,0.35); border-color: var(--mint); }
+    .publish-toggle input:checked + .publish-slider:before { transform: translateX(20px); background: var(--mint); }
+    .publish-status { font-size: 11px; font-weight: 800; color: rgba(144,224,239,0.4); }
+    .publish-status.live { color: var(--mint); }
+    .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--mint); margin-right: 3px; animation: pulse 2s infinite; }
+
     /* Empty state */
     .empty-state { text-align: center; padding: 60px 20px; color: rgba(144,224,239,0.35); }
     .empty-state .icon { font-size: 52px; margin-bottom: 14px; display: block; }
@@ -407,6 +437,11 @@
           <div class="stat-value" id="statSize">0 MB</div>
           <div class="stat-meta">Total file size</div>
         </div>
+        <div class="stat-card" style="border-top: 3px solid var(--mint);">
+          <div class="stat-label">Live on Site</div>
+          <div class="stat-value" id="statPublished" style="color:var(--mint);">0</div>
+          <div class="stat-meta">Published worksheets</div>
+        </div>
       </div>
 
       <div class="section-heading">
@@ -588,6 +623,7 @@
 
   // ── FILE STORAGE ──
   const STORAGE_KEY = 'qfw_admin_files';
+  const PUBLISHED_KEY = 'qfw_published_files';
 
   function getFiles() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
@@ -623,11 +659,13 @@
     const pdfs = files.filter(f => f.name.toLowerCase().endsWith('.pdf'));
     const docs = files.filter(f => /\.(doc|docx)$/i.test(f.name));
     const totalSize = files.reduce((a, f) => a + (f.size || 0), 0);
+    const publishedCount = getPublishedIds().length;
 
     document.getElementById('statTotal').textContent = files.length;
     document.getElementById('statPdf').textContent = pdfs.length;
     document.getElementById('statDoc').textContent = docs.length;
     document.getElementById('statSize').textContent = formatSize(totalSize);
+    document.getElementById('statPublished').textContent = publishedCount;
     document.getElementById('settingsFileCount').textContent = files.length + ' files';
     document.getElementById('settingsFileSize').textContent = formatSize(totalSize);
 
@@ -640,8 +678,37 @@
   }
 
   // ── RENDER FILES ──
+  function isPublished(fileId) {
+    const ids = getPublishedIds();
+    return ids.includes(fileId);
+  }
+
+  function getPublishedIds() {
+    try { return JSON.parse(localStorage.getItem(PUBLISHED_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function setPublished(fileId, publish) {
+    let ids = getPublishedIds();
+    if (publish) {
+      if (!ids.includes(fileId)) ids.push(fileId);
+    } else {
+      ids = ids.filter(id => id !== fileId);
+    }
+    localStorage.setItem(PUBLISHED_KEY, JSON.stringify(ids));
+    // Update the status label in the card
+    const statusEl = document.getElementById('pub-status-' + fileId);
+    if (statusEl) {
+      statusEl.className = 'publish-status' + (publish ? ' live' : '');
+      statusEl.innerHTML = publish ? '<span class="live-dot"></span>Live on site' : 'Not published';
+    }
+    updateStats();
+    showToast(publish ? '🌐 Published to Worksheets section!' : '🔒 Removed from site', publish ? 'success' : 'warning');
+  }
+
   function buildFileCard(file, actions = true) {
     const { icon, cls } = getFileIcon(file.name);
+    const published = isPublished(file.id);
     return `
       <div class="file-card" id="card-${file.id}">
         <div class="file-card-top">
@@ -652,6 +719,16 @@
           </div>
         </div>
         ${actions ? `
+        <div class="publish-row">
+          <span class="publish-label">🌐 Show on Website</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="publish-status${published ? ' live' : ''}" id="pub-status-${file.id}">${published ? '<span class="live-dot"></span>Live on site' : 'Not published'}</span>
+            <label class="publish-toggle">
+              <input type="checkbox" ${published ? 'checked' : ''} onchange="setPublished('${file.id}', this.checked)">
+              <span class="publish-slider"></span>
+            </label>
+          </div>
+        </div>
         <div class="file-card-actions">
           <button class="file-action-btn download" onclick="downloadFile('${file.id}')">⬇️ Download</button>
           <button class="file-action-btn rename" onclick="openRename('${file.id}')">✏️ Rename</button>
@@ -860,6 +937,9 @@
   }
   function confirmDelete() {
     const files = getFiles().filter(f => f.id !== pendingDeleteId);
+    // Also remove from published list
+    let ids = getPublishedIds().filter(id => id !== pendingDeleteId);
+    localStorage.setItem(PUBLISHED_KEY, JSON.stringify(ids));
     saveFiles(files);
     closeModal('deleteModal');
     showToast('🗑️ File deleted', 'success');
@@ -868,6 +948,7 @@
   function clearAllFiles() {
     if (!confirm('Are you sure you want to delete ALL uploaded files? This cannot be undone.')) return;
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(PUBLISHED_KEY);
     updateStats();
     updateBadge();
     showToast('🗑️ All files cleared', 'warning');

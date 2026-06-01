@@ -280,6 +280,59 @@ app.get('/', (c) => {
     /* ── ACTIVITIES ── */
     #activities { background: rgba(255,107,107,0.04); }
     .activities-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 20px; margin-top: 36px; }
+
+    /* ── WORKSHEETS DOWNLOADS SECTION ── */
+    #worksheets { background: rgba(6,214,160,0.04); }
+    .worksheets-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(270px,1fr)); gap: 18px; margin-top: 32px; }
+    .worksheet-card {
+      background: linear-gradient(135deg,rgba(13,79,124,0.5),rgba(10,31,68,0.85));
+      border: 2px solid rgba(6,214,160,0.25); border-radius: 20px;
+      padding: 22px 20px; display: flex; flex-direction: column; gap: 12px;
+      transition: transform 0.25s, border-color 0.25s;
+      animation: ws-pop 0.35s ease both;
+    }
+    @keyframes ws-pop { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+    .worksheet-card:hover { transform: translateY(-5px); border-color: var(--mint); }
+    .worksheet-card-top { display: flex; align-items: flex-start; gap: 14px; }
+    .worksheet-icon {
+      width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 26px;
+    }
+    .worksheet-icon.pdf { background: rgba(255,107,107,0.15); border: 1.5px solid rgba(255,107,107,0.3); }
+    .worksheet-icon.doc { background: rgba(0,180,216,0.15); border: 1.5px solid rgba(0,180,216,0.3); }
+    .worksheet-icon.other { background: rgba(255,214,10,0.1); border: 1.5px solid rgba(255,214,10,0.25); }
+    .worksheet-info { flex: 1; min-width: 0; }
+    .worksheet-name { font-weight: 800; font-size: 15px; color: var(--white); word-break: break-word; line-height: 1.4; margin-bottom: 4px; }
+    .worksheet-meta { font-size: 11px; color: rgba(144,224,239,0.5); }
+    .worksheet-dl-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 11px; border-radius: 12px; border: none; cursor: pointer;
+      background: linear-gradient(135deg, var(--mint), #04a97d);
+      color: var(--ocean-deep); font-family: 'Fredoka One', cursive;
+      font-size: 16px; box-shadow: 0 4px 16px rgba(6,214,160,0.25);
+      transition: transform 0.2s, filter 0.2s; text-decoration: none;
+    }
+    .worksheet-dl-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .worksheets-empty {
+      grid-column: 1/-1; text-align: center; padding: 56px 20px;
+      color: rgba(144,224,239,0.35);
+    }
+    .worksheets-empty .ws-empty-icon { font-size: 52px; display: block; margin-bottom: 14px; }
+    .worksheets-empty p { font-size: 15px; font-weight: 700; line-height: 1.7; }
+    .ws-filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; align-items: center; }
+    .ws-filter-btn {
+      padding: 7px 16px; border-radius: 30px;
+      border: 1.5px solid rgba(6,214,160,0.25);
+      background: transparent; color: rgba(144,224,239,0.65);
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .ws-filter-btn:hover { border-color: var(--mint); color: var(--white); }
+    .ws-filter-btn.active { background: rgba(6,214,160,0.15); border-color: var(--mint); color: var(--white); }
+    .ws-count-badge {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 800; color: var(--mint);
+    }
     .activity-card { background: linear-gradient(135deg,rgba(13,79,124,0.5),rgba(10,31,68,0.8)); border: 2px solid rgba(0,180,216,0.25); border-radius: 20px; padding: 28px 20px; text-align: center; transition: transform 0.25s,border-color 0.25s; cursor: pointer; }
     .activity-card:hover { transform: translateY(-6px); border-color: var(--gold); }
     .activity-icon { font-size: 52px; margin-bottom: 14px; display: block; }
@@ -479,6 +532,7 @@ app.get('/', (c) => {
     <a href="#game">🎮 Play</a>
     <a href="#youtube">▶️ Videos</a>
     <a href="#activities">🎨 Activities</a>
+    <a href="#worksheets">📥 Worksheets</a>
     <a href="#messages">💌 Messages</a>
     <div class="nav-dropdown" id="eduDropdown">
       <button class="nav-dropdown-btn" id="eduDropdownBtn">🎓 For Educators ▾</button>
@@ -667,6 +721,28 @@ app.get('/', (c) => {
         <h3>Story Quiz</h3>
         <p>Test what you know about Mia, Jake, and their underwater adventure!</p>
         <span class="activity-btn">Take the Quiz →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKSHEETS DOWNLOADS -->
+<section id="worksheets">
+  <div class="section-inner">
+    <span class="section-tag">📥 Free Downloads</span>
+    <h2 class="section-title">Worksheets &amp; Resources</h2>
+    <div class="divider"></div>
+    <p class="section-intro">Download free worksheets, activity sheets, and learning resources — new ones added regularly by Rose!</p>
+    <div class="ws-filter-bar" id="wsFilterBar">
+      <button class="ws-filter-btn active" onclick="wsFilter('all',this)">All</button>
+      <button class="ws-filter-btn" onclick="wsFilter('pdf',this)">📄 PDF</button>
+      <button class="ws-filter-btn" onclick="wsFilter('doc',this)">📝 Word</button>
+      <span class="ws-count-badge" id="wsCountBadge">📂 0 resources</span>
+    </div>
+    <div class="worksheets-grid" id="worksheetsGrid">
+      <div class="worksheets-empty">
+        <span class="ws-empty-icon">📂</span>
+        <p>No worksheets uploaded yet.<br>Check back soon — Rose is adding new resources regularly! 🌊</p>
       </div>
     </div>
   </div>
@@ -1190,6 +1266,86 @@ setTimeout(() => {
 
 // ── SERVICE WORKER ──
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
+
+// ── WORKSHEETS: load published files from admin ──
+(function initWorksheets() {
+  const STORAGE_KEY = 'qfw_admin_files';
+  const PUBLISHED_KEY = 'qfw_published_files';
+  let wsCurrentFilter = 'all';
+
+  function getPublishedIds() {
+    try { return JSON.parse(localStorage.getItem(PUBLISHED_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function getAllFiles() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+
+  function getFileIcon(name) {
+    const ext = (name.split('.').pop() || '').toLowerCase();
+    if (ext === 'pdf') return { icon: '📄', cls: 'pdf' };
+    if (['doc','docx'].includes(ext)) return { icon: '📝', cls: 'doc' };
+    return { icon: '📃', cls: 'other' };
+  }
+
+  function renderWorksheets() {
+    const allFiles = getAllFiles();
+    const publishedIds = getPublishedIds();
+    let files = allFiles.filter(f => publishedIds.includes(f.id));
+
+    if (wsCurrentFilter === 'pdf') files = files.filter(f => f.name.toLowerCase().endsWith('.pdf'));
+    else if (wsCurrentFilter === 'doc') files = files.filter(f => /\.(doc|docx)$/i.test(f.name));
+
+    const grid = document.getElementById('worksheetsGrid');
+    const badge = document.getElementById('wsCountBadge');
+    const total = allFiles.filter(f => publishedIds.includes(f.id)).length;
+    if (badge) badge.textContent = '📂 ' + total + ' resource' + (total !== 1 ? 's' : '');
+
+    if (!grid) return;
+    if (!files.length) {
+      grid.innerHTML = '<div class="worksheets-empty"><span class="ws-empty-icon">📂</span><p>' +
+        (total > 0 ? 'No ' + wsCurrentFilter.toUpperCase() + ' files available.' : 'No worksheets uploaded yet.<br>Check back soon — Rose is adding new resources regularly! 🌊') +
+        '</p></div>';
+      return;
+    }
+    grid.innerHTML = files.map(function(file, i) {
+      const { icon, cls } = getFileIcon(file.name);
+      const delay = (i * 0.07).toFixed(2);
+      return '<div class="worksheet-card" style="animation-delay:' + delay + 's">' +
+        '<div class="worksheet-card-top">' +
+          '<div class="worksheet-icon ' + cls + '">' + icon + '</div>' +
+          '<div class="worksheet-info">' +
+            '<div class="worksheet-name">' + file.name.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' +
+            '<div class="worksheet-meta">' + formatSize(file.size) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<a class="worksheet-dl-btn" href="' + file.data + '" download="' + file.name.replace(/"/g,'') + '">⬇️ Download Free</a>' +
+      '</div>';
+    }).join('');
+  }
+
+  window.wsFilter = function(type, btn) {
+    wsCurrentFilter = type;
+    document.querySelectorAll('.ws-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    renderWorksheets();
+  };
+
+  // Re-render whenever storage changes (admin publishes/unpublishes)
+  window.addEventListener('storage', function(e) {
+    if (e.key === STORAGE_KEY || e.key === PUBLISHED_KEY) renderWorksheets();
+  });
+
+  renderWorksheets();
+})();
 </script>
 </body>
 </html>`)
