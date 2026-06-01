@@ -1,21 +1,30 @@
+# Quest for Wonders — The Hidden Stone Beneath the Sea
+
+A magical underwater adventure for brave kids. Free game, coloring pages, and story time videos.
+
+## Getting Started
+
+Install dependencies and run the development server:
+
 ```txt
 npm install
 npm run dev
 ```
 
-```txt
-npm run deploy
-```
-
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
+Build for production:
 
 ```txt
-npm run cf-typegen
+npm run build
 ```
 
-Pass the `CloudflareBindings` as generics when instantiation `Hono`:
+Preview the production build locally:
 
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>()
+```txt
+npm run preview
 ```
+
+## Contact
+
+For partnerships, printable packs, or any enquiries, reach out anytime:
+
+📧 **questforwondersbooks@gmail.com**
