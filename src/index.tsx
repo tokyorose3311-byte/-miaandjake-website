@@ -12,6 +12,8 @@ app.use('/icon-192.png', serveStatic({ root: './public' }))
 app.use('/icon-512.png', serveStatic({ root: './public' }))
 app.use('/favicon.ico', serveStatic({ root: './public' }))
 app.use('/book2-cover.png', serveStatic({ root: './public' }))
+app.use('/admin-login.html', serveStatic({ root: './public' }))
+app.use('/admin-dashboard.html', serveStatic({ root: './public' }))
 
 // Serve game HTML directly from bundled content
 app.get('/game.html', (c) => c.html(gameHTML))
@@ -111,6 +113,19 @@ app.get('/', (c) => {
     .dd-price-amount { font-family: 'Fredoka One', cursive; font-size: 18px; color: var(--gold); white-space: nowrap; }
     .dd-divider { height: 1px; background: rgba(0,180,216,0.2); margin: 4px 6px; }
     @keyframes dropFade { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    /* Admin nav button */
+    .dd-admin-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 14px; border-radius: 10px;
+      cursor: pointer; text-decoration: none;
+      background: linear-gradient(135deg, rgba(255,214,10,0.08), rgba(255,214,10,0.03));
+      border: 1.5px solid rgba(255,214,10,0.3);
+      transition: background 0.15s, border-color 0.15s;
+      gap: 10px; margin-top: 4px;
+    }
+    .dd-admin-row:hover { background: rgba(255,214,10,0.15); border-color: rgba(255,214,10,0.55); }
+    .dd-admin-label { font-weight: 800; font-size: 13px; color: var(--gold); letter-spacing: 0.5px; }
+    .dd-admin-badge { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--ocean-deep); font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px; }
 
     /* ── HERO ── */
     .hero {
@@ -498,6 +513,11 @@ app.get('/', (c) => {
             <span class="dd-price-title">✉️ Request a Quote</span>
             <span class="dd-price-note">Get custom pricing</span>
           </div>
+        </a>
+        <div class="dd-divider"></div>
+        <a href="/admin-login.html" class="dd-admin-row">
+          <span class="dd-admin-label">🔐 Admin Login</span>
+          <span class="dd-admin-badge">ADMIN</span>
         </a>
       </div>
     </div>
