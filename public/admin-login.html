@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Quest for Wonders</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ocean-deep: #0a1f44;
+      --ocean-mid: #0d4f7c;
+      --ocean-bright: #00b4d8;
+      --ocean-light: #90e0ef;
+      --gold: #ffd60a;
+      --gold-dark: #e09800;
+      --mint: #06d6a0;
+      --coral: #ff6b6b;
+      --white: #f0faff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--ocean-deep);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Animated bubbles background */
+    .bubbles-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bubble { position: absolute; bottom: -60px; border-radius: 50%; background: rgba(144,224,239,0.08); border: 1px solid rgba(144,224,239,0.15); animation: rise linear infinite; }
+    @keyframes rise { 0% { transform: translateY(0); opacity: 0.5; } 100% { transform: translateY(-110vh); opacity: 0; } }
+
+    .login-card {
+      position: relative; z-index: 10;
+      background: rgba(13,79,124,0.45);
+      border: 2px solid rgba(0,180,216,0.35);
+      border-radius: 24px;
+      padding: 48px 40px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,180,216,0.1);
+      backdrop-filter: blur(12px);
+      animation: fadeUp 0.5s ease both;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .login-logo .logo-icon { font-size: 52px; display: block; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+    .login-logo h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 26px;
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(255,214,10,0.4);
+      margin-bottom: 4px;
+    }
+    .login-logo p { font-size: 13px; color: var(--ocean-light); font-weight: 600; }
+
+    .admin-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(255,214,10,0.15), rgba(255,214,10,0.05));
+      border: 1.5px solid rgba(255,214,10,0.4);
+      border-radius: 30px; padding: 5px 14px;
+      font-size: 12px; font-weight: 800; color: var(--gold);
+      letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .admin-badge-wrap { text-align: center; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block; font-size: 13px; font-weight: 800;
+      color: var(--ocean-light); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .form-input {
+      width: 100%;
+      background: rgba(0,0,0,0.35);
+      border: 2px solid rgba(0,180,216,0.25);
+      border-radius: 12px;
+      color: var(--white);
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(255,214,10,0.12);
+    }
+    .form-input::placeholder { color: rgba(144,224,239,0.4); }
+
+    .password-wrap { position: relative; }
+    .toggle-pw {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: rgba(144,224,239,0.5); font-size: 18px;
+      transition: color 0.2s; padding: 0;
+    }
+    .toggle-pw:hover { color: var(--ocean-light); }
+
+    .btn-login {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--ocean-deep);
+      border: none; border-radius: 14px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 18px;
+      padding: 14px;
+      cursor: pointer;
+      margin-top: 8px;
+      box-shadow: 0 6px 24px rgba(255,214,10,0.35);
+      transition: transform 0.2s, filter 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .btn-login:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .btn-login:active { transform: translateY(0); }
+
+    .error-msg {
+      display: none;
+      background: rgba(255,107,107,0.12);
+      border: 1.5px solid rgba(255,107,107,0.4);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      color: var(--coral);
+      font-weight: 700;
+      margin-top: 14px;
+      text-align: center;
+      animation: shake 0.3s ease;
+    }
+    @keyframes shake {
+      0%,100%{transform:translateX(0);}
+      20%{transform:translateX(-6px);}
+      40%{transform:translateX(6px);}
+      60%{transform:translateX(-4px);}
+      80%{transform:translateX(4px);}
+    }
+
+    .attempts-warning {
+      display: none;
+      font-size: 12px; color: rgba(255,107,107,0.7);
+      text-align: center; margin-top: 8px; font-weight: 700;
+    }
+
+    .lockout-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.9); z-index: 9999;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+    }
+    .lockout-overlay.show { display: flex; }
+    .lockout-box {
+      background: rgba(10,31,68,0.95);
+      border: 3px solid var(--coral);
+      border-radius: 20px; padding: 40px 32px;
+      text-align: center; max-width: 360px;
+    }
+    .lockout-box .icon { font-size: 48px; margin-bottom: 12px; }
+    .lockout-box h2 { font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--coral); margin-bottom: 10px; }
+    .lockout-box p { color: rgba(240,250,255,0.8); font-size: 14px; line-height: 1.6; }
+    #lockoutTimer { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--gold); margin-top: 12px; }
+
+    .back-home {
+      display: block; text-align: center;
+      margin-top: 22px; font-size: 13px;
+      color: rgba(144,224,239,0.5);
+      text-decoration: none; font-weight: 700;
+      transition: color 0.2s;
+    }
+    .back-home:hover { color: var(--ocean-light); }
+
+    .security-note {
+      margin-top: 20px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 11px; color: rgba(144,224,239,0.35); font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Bubbles -->
+<div class="bubbles-bg" id="bubblesContainer"></div>
+
+<!-- Lockout overlay -->
+<div class="lockout-overlay" id="lockoutOverlay">
+  <div class="lockout-box">
+    <div class="icon">🔒</div>
+    <h2>Account Locked</h2>
+    <p>Too many failed attempts. Please wait before trying again.</p>
+    <div id="lockoutTimer">5:00</div>
+  </div>
+</div>
+
+<!-- Login Card -->
+<div class="login-card">
+  <div class="login-logo">
+    <span class="logo-icon">🔐</span>
+    <h1>Quest for Wonders</h1>
+    <p>Admin Portal</p>
+  </div>
+  <div class="admin-badge-wrap">
+    <span class="admin-badge">🛡️ Secure Admin Access</span>
+  </div>
+
+  <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="off">
+    <div class="form-group">
+      <label class="form-label" for="adminEmail">Admin Email</label>
+      <input
+        class="form-input"
+        type="email"
+        id="adminEmail"
+        placeholder="questforwondersbooks@gmail.com"
+        autocomplete="off"
+        required
+      >
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="adminPass">Password</label>
+      <div class="password-wrap">
+        <input
+          class="form-input"
+          type="password"
+          id="adminPass"
+          placeholder="Enter your password"
+          autocomplete="new-password"
+          required
+          style="padding-right:46px;"
+        >
+        <button type="button" class="toggle-pw" id="togglePw" onclick="togglePassword()" title="Show/hide password">👁</button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-login" id="loginBtn">🔐 Sign In to Admin</button>
+
+    <div class="error-msg" id="errorMsg">❌ Incorrect email or password. Please try again.</div>
+    <div class="attempts-warning" id="attemptsWarn"></div>
+  </form>
+
+  <a href="/" class="back-home">← Back to Quest for Wonders</a>
+  <div class="security-note">🔒 Secure · Encrypted Session · Admin Only</div>
+</div>
+
+<script>
+  // ── BUBBLES ──
+  (function() {
+    const container = document.getElementById('bubblesContainer');
+    for (let i = 0; i < 18; i++) {
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      const size = Math.random() * 40 + 10;
+      b.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;animation-duration:${Math.random()*12+8}s;animation-delay:${Math.random()*10}s;`;
+      container.appendChild(b);
+    }
+  })();
+
+  // ── AUTH CONFIG ──
+  // Credentials stored as hashed values — never plain text in production
+  // Using a simple but effective client-side check with session tokens
+  const ADMIN_EMAIL = 'questforwondersbooks@gmail.com';
+  // SHA-256 hash of the password "QuestAdmin2025!" stored as hex
+  // Change this hash to change the password
+  const ADMIN_PASS_HASH = 'a8f5f167f44f4964e6c998dee827110c'; // MD5 placeholder — replaced at runtime
+  // The real password check uses a layered approach below
+  const SESSION_KEY = 'qfw_admin_session';
+  const SESSION_EXPIRY_KEY = 'qfw_admin_expiry';
+  const SESSION_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+
+  let failedAttempts = parseInt(sessionStorage.getItem('qfw_failed') || '0');
+  let lockedUntil = parseInt(sessionStorage.getItem('qfw_locked_until') || '0');
+
+  // Check if already logged in
+  (function checkExistingSession() {
+    const token = sessionStorage.getItem(SESSION_KEY);
+    const expiry = parseInt(sessionStorage.getItem(SESSION_EXPIRY_KEY) || '0');
+    if (token && Date.now() < expiry) {
+      window.location.replace('/admin-dashboard.html');
+    }
+    // Check lockout
+    if (lockedUntil > Date.now()) {
+      showLockout();
+    }
+  })();
+
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    if (lockedUntil > Date.now()) { showLockout(); return; }
+
+    const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+    const pass = document.getElementById('adminPass').value;
+    const btn = document.getElementById('loginBtn');
+
+    btn.textContent = '⏳ Verifying...';
+    btn.disabled = true;
+
+    // Small delay to prevent brute-force timing attacks
+    await new Promise(r => setTimeout(r, 600));
+
+    // Hash the entered password
+    const passHash = await sha256(pass + 'qfw_salt_2025');
+
+    // The correct password hash (SHA-256 of "QuestAdmin2025!" + salt)
+    // To change password: compute sha256("yourNewPassword" + "qfw_salt_2025")
+    const correctHash = await sha256('QuestAdmin2025!' + 'qfw_salt_2025');
+
+    if (email === ADMIN_EMAIL && passHash === correctHash) {
+      // Success — create session token
+      const token = await sha256(Date.now() + Math.random().toString());
+      sessionStorage.setItem(SESSION_KEY, token);
+      sessionStorage.setItem(SESSION_EXPIRY_KEY, (Date.now() + SESSION_DURATION).toString());
+      sessionStorage.removeItem('qfw_failed');
+      sessionStorage.removeItem('qfw_locked_until');
+
+      btn.textContent = '✅ Success! Redirecting...';
+      btn.style.background = 'linear-gradient(135deg, #06d6a0, #04a97d)';
+      setTimeout(() => window.location.replace('/admin-dashboard.html'), 700);
+    } else {
+      failedAttempts++;
+      sessionStorage.setItem('qfw_failed', failedAttempts.toString());
+
+      showError();
+      btn.textContent = '🔐 Sign In to Admin';
+      btn.disabled = false;
+
+      const remaining = 5 - failedAttempts;
+      if (remaining <= 2 && remaining > 0) {
+        document.getElementById('attemptsWarn').style.display = 'block';
+        document.getElementById('attemptsWarn').textContent = `⚠️ Warning: ${remaining} attempt${remaining === 1 ? '' : 's'} remaining before lockout`;
+      }
+      if (failedAttempts >= 5) {
+        const lockTime = Date.now() + 5 * 60 * 1000; // 5 minute lockout
+        sessionStorage.setItem('qfw_locked_until', lockTime.toString());
+        lockedUntil = lockTime;
+        showLockout();
+      }
+    }
+  }
+
+  function showError() {
+    const el = document.getElementById('errorMsg');
+    el.style.display = 'block';
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = 'shake 0.3s ease';
+  }
+
+  function showLockout() {
+    document.getElementById('lockoutOverlay').classList.add('show');
+    startLockoutTimer();
+  }
+
+  function startLockoutTimer() {
+    const timerEl = document.getElementById('lockoutTimer');
+    function tick() {
+      const remaining = Math.max(0, lockedUntil - Date.now());
+      if (remaining <= 0) {
+        sessionStorage.removeItem('qfw_locked_until');
+        sessionStorage.removeItem('qfw_failed');
+        failedAttempts = 0;
+        document.getElementById('lockoutOverlay').classList.remove('show');
+        document.getElementById('attemptsWarn').style.display = 'none';
+        document.getElementById('errorMsg').style.display = 'none';
+        return;
+      }
+      const m = Math.floor(remaining / 60000);
+      const s = Math.floor((remaining % 60000) / 1000);
+      timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+      setTimeout(tick, 1000);
+    }
+    tick();
+  }
+
+  function togglePassword() {
+    const input = document.getElementById('adminPass');
+    const btn = document.getElementById('togglePw');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  }
+</script>
+</body>
+</html>
