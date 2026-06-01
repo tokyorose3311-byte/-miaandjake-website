@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { serveStatic } from 'hono/cloudflare-workers'
+import { serveStatic } from 'hono/middleware'
 import { gameHTML } from './game-content'
 
 const app = new Hono()
@@ -493,7 +493,7 @@ app.get('/', (c) => {
           <span class="dd-price-amount" style="font-size:13px;color:var(--ocean-light)">Email for Quote</span>
         </a>
         <div class="dd-divider"></div>
-        <a href="mailto:hello@questforwonders.com" class="dd-price-row">
+        <a href="mailto:questforwondersbooks@gmail.com" class="dd-price-row">
           <div class="dd-price-left">
             <span class="dd-price-title">✉️ Request a Quote</span>
             <span class="dd-price-note">Get custom pricing</span>
@@ -733,7 +733,7 @@ app.get('/', (c) => {
         </div>
       </div>
       <div class="edu-cta">
-        <a href="mailto:hello@questforwonders.com" class="btn btn-primary" style="display:inline-block;font-size:16px;padding:13px 30px;text-decoration:none;font-family:'Fredoka One',cursive;">✉️ Request a Quote / Licence</a>
+        <a href="mailto:questforwondersbooks@gmail.com" class="btn btn-primary" style="display:inline-block;font-size:16px;padding:13px 30px;text-decoration:none;font-family:'Fredoka One',cursive;">✉️ Request a Quote / Licence</a>
       </div>
     </div>
 
@@ -809,8 +809,8 @@ app.get('/', (c) => {
     <div class="contact-box">
       <div style="font-size:42px;margin-bottom:10px;">💌</div>
       <p style="font-size:17px;color:rgba(240,250,255,0.9);margin-bottom:18px;line-height:1.6;">Reach out anytime — for partnerships, printable packs,<br>or a personal note for a brave little reader.</p>
-      <a href="mailto:hello@questforwonders.com" class="btn btn-primary" style="display:inline-block;font-size:17px;padding:14px 32px;text-decoration:none;font-family:'Fredoka One',cursive;">📧 hello@questforwonders.com</a>
-      <p style="margin-top:16px;font-size:13px;color:rgba(144,224,239,0.65);">Click the button above to open your email app, or copy the address.</p>
+      <a href="mailto:questforwondersbooks@gmail.com" class="btn btn-primary" style="display:inline-block;font-size:17px;padding:14px 32px;text-decoration:none;font-family:'Fredoka One',cursive;">📧 questforwondersbooks@gmail.com</a>
+      <p style="margin-top:16px;font-size:13px;color:rgba(144,224,239,0.65);">Click the button above to open your email app, or copy the address: <strong style="color:var(--ocean-light);">questforwondersbooks@gmail.com</strong></p>
     </div>
     <p style="margin-top:22px;font-size:14px;color:rgba(144,224,239,0.6);text-align:center;font-style:italic;">🌊 Made with love for every child who needs a little adventure today. 🌊</p>
   </div>
