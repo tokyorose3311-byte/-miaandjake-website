@@ -126,6 +126,21 @@ app.get('/', (c) => {
     .dd-admin-row:hover { background: rgba(255,214,10,0.15); border-color: rgba(255,214,10,0.55); }
     .dd-admin-label { font-weight: 800; font-size: 13px; color: var(--gold); letter-spacing: 0.5px; }
     .dd-admin-badge { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--ocean-deep); font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px; }
+    /* Worksheets dropdown row */
+    .dd-worksheets-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 14px; border-radius: 10px;
+      cursor: pointer; text-decoration: none;
+      background: linear-gradient(135deg, rgba(6,214,160,0.1), rgba(6,214,160,0.03));
+      border: 1.5px solid rgba(6,214,160,0.3);
+      transition: background 0.15s, border-color 0.15s;
+      gap: 10px; margin-top: 2px;
+    }
+    .dd-worksheets-row:hover { background: rgba(6,214,160,0.18); border-color: rgba(6,214,160,0.6); }
+    .dd-worksheets-left { display: flex; flex-direction: column; gap: 2px; }
+    .dd-worksheets-title { font-weight: 800; font-size: 14px; color: var(--mint); }
+    .dd-worksheets-note { font-size: 11px; color: rgba(144,224,239,0.65); }
+    .dd-worksheets-badge { background: linear-gradient(135deg, var(--mint), #04a97d); color: var(--ocean-deep); font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px; white-space: nowrap; }
 
     /* ── HERO ── */
     .hero {
@@ -567,6 +582,14 @@ app.get('/', (c) => {
             <span class="dd-price-title">✉️ Request a Quote</span>
             <span class="dd-price-note">Get custom pricing</span>
           </div>
+        </a>
+        <div class="dd-divider"></div>
+        <a href="#worksheets" class="dd-worksheets-row" onclick="document.getElementById('eduDropdownMenu').classList.remove('is-open');document.getElementById('eduDropdownBtn').textContent='🎓 For Educators ▾';">
+          <div class="dd-worksheets-left">
+            <span class="dd-worksheets-title">📥 Free Worksheets</span>
+            <span class="dd-worksheets-note">Included with website purchase</span>
+          </div>
+          <span class="dd-worksheets-badge">FREE</span>
         </a>
         <div class="dd-divider"></div>
         <a href="/admin-login.html" class="dd-admin-row">
