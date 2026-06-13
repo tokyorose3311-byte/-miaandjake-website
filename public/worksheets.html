@@ -25,8 +25,6 @@
       color: var(--white);
       min-height: 100vh;
     }
-
-    /* NAV */
     nav {
       display: flex; justify-content: space-between; align-items: center;
       padding: 14px 28px;
@@ -40,12 +38,7 @@
     .nav-links a { color: var(--ocean-light); text-decoration: none; font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 30px; transition: background 0.2s; }
     .nav-links a:hover { background: rgba(0,180,216,0.2); color: var(--white); }
     .nav-yt { background: linear-gradient(135deg,#ff0000,#cc0000) !important; color: #fff !important; }
-
-    /* HERO */
-    .hero {
-      text-align: center;
-      padding: 60px 20px 40px;
-    }
+    .hero { text-align: center; padding: 60px 20px 40px; }
     .hero .section-tag {
       display: inline-block;
       background: rgba(0,180,216,0.15);
@@ -56,82 +49,20 @@
       letter-spacing: 1px; text-transform: uppercase;
       margin-bottom: 16px;
     }
-    .hero h1 {
-      font-family: 'Fredoka One', cursive;
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      color: var(--gold);
-      margin-bottom: 14px;
-    }
-    .hero p {
-      font-size: 16px;
-      color: rgba(240,250,255,0.8);
-      max-width: 600px;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-    .divider {
-      width: 60px; height: 3px;
-      background: linear-gradient(90deg, var(--ocean-bright), var(--gold));
-      border-radius: 2px;
-      margin: 18px auto;
-    }
-
-    /* GRID */
-    .worksheets-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 20px 24px 60px;
-    }
-
-    /* CARD */
-    .worksheet-card {
-      background: linear-gradient(135deg, rgba(13,79,124,0.5), rgba(10,31,68,0.8));
-      border: 2px solid rgba(0,180,216,0.25);
-      border-radius: 20px;
-      padding: 32px 24px;
-      text-align: center;
-      transition: transform 0.25s, border-color 0.25s;
-    }
+    .hero h1 { font-family: 'Fredoka One', cursive; font-size: clamp(2rem, 5vw, 3.2rem); color: var(--gold); margin-bottom: 14px; }
+    .hero p { font-size: 16px; color: rgba(240,250,255,0.8); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+    .divider { width: 60px; height: 3px; background: linear-gradient(90deg, var(--ocean-bright), var(--gold)); border-radius: 2px; margin: 18px auto; }
+    .worksheets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; padding: 20px 24px 60px; }
+    .worksheet-card { background: linear-gradient(135deg, rgba(13,79,124,0.5), rgba(10,31,68,0.8)); border: 2px solid rgba(0,180,216,0.25); border-radius: 20px; padding: 32px 24px; text-align: center; transition: transform 0.25s, border-color 0.25s; }
     .worksheet-card:hover { transform: translateY(-6px); border-color: var(--gold); }
     .worksheet-icon { font-size: 52px; margin-bottom: 14px; display: block; }
-    .worksheet-card h3 {
-      font-family: 'Fredoka One', cursive;
-      font-size: 20px; color: var(--gold);
-      margin-bottom: 8px;
-    }
-    .worksheet-card p {
-      font-size: 14px;
-      color: rgba(240,250,255,0.75);
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-    .worksheet-btn {
-      display: inline-block;
-      padding: 10px 24px;
-      background: linear-gradient(135deg, var(--ocean-bright), var(--ocean-mid));
-      border-radius: 30px;
-      font-weight: 800; font-size: 14px;
-      color: #fff;
-      text-decoration: none;
-      transition: opacity 0.2s;
-    }
+    .worksheet-card h3 { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--gold); margin-bottom: 8px; }
+    .worksheet-card p { font-size: 14px; color: rgba(240,250,255,0.75); line-height: 1.6; margin-bottom: 20px; }
+    .worksheet-btn { display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, var(--ocean-bright), var(--ocean-mid)); border-radius: 30px; font-weight: 800; font-size: 14px; color: #fff; text-decoration: none; transition: opacity 0.2s; }
     .worksheet-btn:hover { opacity: 0.85; }
-
-    /* PRINT NOTE */
-    .print-note {
-      text-align: center;
-      font-size: 14px;
-      color: rgba(240,250,255,0.6);
-      padding: 0 20px 40px;
-    }
+    .print-note { text-align: center; font-size: 14px; color: rgba(240,250,255,0.6); padding: 0 20px 40px; }
     .print-note strong { color: var(--ocean-bright); }
-
-    @media (max-width: 600px) {
-      nav { padding: 10px 16px; }
-    }
+    @media (max-width: 600px) { nav { padding: 10px 16px; } }
   </style>
 </head>
 <body>
@@ -181,21 +112,7 @@
     <h3>Worksheet 5</h3>
     <p>Advanced flight science challenges for curious young explorers!</p>
     <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_Flight_worksheet_5.docx" class="worksheet-btn" target="_blank">📖 Open &amp; Print →</a>
-  </div> <div class="hero" style="padding-top: 50px;">
-        <span class="section-tag">🫧 Grammar Resources</span>
-        <h1>The Hidden Words in the Bubbles</h1>
-        <div class="divider"></div>
-        <p>Fun grammar and language activities! Click a worksheet below to open and print.</p>
-    </div>
-
-    <div class="worksheets-grid">
-        <div class="worksheet-card">
-            <span class="worksheet-icon">🫧</span>
-            <h3>Grammar Worksheet 2</h3>
-            <p>Find the hidden words inside the bubbles with this fun activity.</p>
-            <a href="/The_Hidden_Words_in_the_Bubbles_worksheet_2.docx" class="worksheet-btn" target="_blank">📖 Open & Print →</a>
-        </div>
-    </div>
+  </div>
 
 </div>
 
