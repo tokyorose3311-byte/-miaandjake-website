@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worksheets – Quest for Wonders</title>
+  <meta name="description" content="Free printable Science of Flight worksheets for kids, inspired by Quest for Wonders.">
+  <meta name="theme-color" content="#0a1f44">
+  <link rel="manifest" href="/manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --ocean-deep: #0a1f44;
+      --ocean-mid: #0d4f7c;
+      --ocean-bright: #00b4d8;
+      --gold: #ffd700;
+      --white: #f0faff;
+      --ocean-light: #90e0ef;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, var(--ocean-deep) 0%, #061630 100%);
+      color: var(--white);
+      min-height: 100vh;
+    }
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 28px;
+      background: rgba(10,31,68,0.92);
+      backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid rgba(0,180,216,0.2);
+    }
+    .nav-logo { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--gold); text-decoration: none; }
+    .nav-links { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+    .nav-links a { color: var(--ocean-light); text-decoration: none; font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 30px; transition: background 0.2s; }
+    .nav-links a:hover { background: rgba(0,180,216,0.2); color: var(--white); }
+    .nav-yt { background: linear-gradient(135deg,#ff0000,#cc0000) !important; color: #fff !important; }
+    .hero { text-align: center; padding: 60px 20px 40px; }
+    .hero .section-tag {
+      display: inline-block;
+      background: rgba(0,180,216,0.15);
+      border: 1px solid rgba(0,180,216,0.4);
+      color: var(--ocean-bright);
+      font-size: 13px; font-weight: 800;
+      padding: 6px 18px; border-radius: 30px;
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .hero h1 { font-family: 'Fredoka One', cursive; font-size: clamp(2rem, 5vw, 3.2rem); color: var(--gold); margin-bottom: 14px; }
+    .hero p { font-size: 16px; color: rgba(240,250,255,0.8); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+    .divider { width: 60px; height: 3px; background: linear-gradient(90deg, var(--ocean-bright), var(--gold)); border-radius: 2px; margin: 18px auto; }
+    .worksheets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; padding: 20px 24px 60px; }
+    .worksheet-card { background: linear-gradient(135deg, rgba(13,79,124,0.5), rgba(10,31,68,0.8)); border: 2px solid rgba(0,180,216,0.25); border-radius: 20px; padding: 32px 24px; text-align: center; transition: transform 0.25s, border-color 0.25s; }
+    .worksheet-card:hover { transform: translateY(-6px); border-color: var(--gold); }
+    .worksheet-icon { font-size: 52px; margin-bottom: 14px; display: block; }
+    .worksheet-card h3 { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--gold); margin-bottom: 8px; }
+    .worksheet-card p { font-size: 14px; color: rgba(240,250,255,0.75); line-height: 1.6; margin-bottom: 20px; }
+    .worksheet-btn { display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, var(--ocean-bright), var(--ocean-mid)); border-radius: 30px; font-weight: 800; font-size: 14px; color: #fff; text-decoration: none; transition: opacity 0.2s; }
+    .worksheet-btn:hover { opacity: 0.85; }
+    .print-note { text-align: center; font-size: 14px; color: rgba(240,250,255,0.6); padding: 0 20px 40px; }
+    .print-note strong { color: var(--ocean-bright); }
+    @media (max-width: 600px) { nav { padding: 10px 16px; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">🌊 Quest for Wonders</a>
+  <div class="nav-links">
+    <a href="/">🏠 Home</a>
+    <a href="/#activities">🎨 Activities</a>
+    <a href="/worksheets.html" style="color:var(--gold);">📄 Worksheets</a>
+    <a href="https://www.youtube.com/@childrenstorytimewithrose" target="_blank" class="nav-yt">▶️ YouTube</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <span class="section-tag">📄 Free Resources</span>
+  <h1>Science of Flight Worksheets</h1>
+  <div class="divider"></div>
+  <p>Fun, curriculum-aligned worksheets inspired by <em>Quest for Wonders</em>. Click any worksheet below to open and print!</p>
+</div>
+
+<div class="worksheets-grid">
+
+  <div class="worksheet-card">
+    <span class="worksheet-icon">✈️</span>
+    <h3>Worksheet 1</h3>
+    <p>The Science of Flight — introductory activity sheet. Great for getting started!</p>
+    <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_flight_worksheet_1.docx" class="worksheet-btn" target="_blank">📖 Open &amp; Print →</a>
+  </div>
+
+  <div class="worksheet-card">
+    <span class="worksheet-icon">🚀</span>
+    <h3>Worksheet 2</h3>
+    <p>Dive deeper into flight concepts with this engaging follow-up activity.</p>
+    <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_flight_worksheet_2.docx" class="worksheet-btn" target="_blank">📖 Open &amp; Print →</a>
+  </div>
+
+  <div class="worksheet-card">
+    <span class="worksheet-icon">🌤️</span>
+    <h3>Worksheet 3</h3>
+    <p>Explore forces, lift, and drag with this hands-on worksheet activity.</p>
+    <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_flight_worksheet_3.docx" class="worksheet-btn" target="_blank">📖 Open &amp; Print →</a>
+  </div>
+
+  <div class="worksheet-card">
+    <span class="worksheet-icon">🦅</span>
+    <h3>Worksheet 4</h3>
+    <p>Advanced flight science challenges for curious young explorers!</p>
+    <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_flight_worksheet_4.docx" class="worksheet-btn" target="_blank">📖 Open &amp; Print →</a>
+  </div>
+
+</div>
+
+<p class="print-note">All worksheets are <strong>completely free</strong>. Click to open in your browser, then use <strong>File → Print</strong> to print.</p>
+
+</body>
+</html>
