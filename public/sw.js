@@ -39,7 +39,7 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  if (e.request.url.endsWith('.html')) {
+  if (e.request.mode === 'navigate' || e.request.url.endsWith('.html')) {
     e.respondWith(
       fetch(e.request)
         .then(response => {
