@@ -3,11 +3,13 @@ const ASSETS = [
   '/',
   '/index.html',
   '/game.html',
+  '/worksheets.html',
   '/manifest.json',
   '/background.png',
   '/quest_coloring_10.png',
   '/quest_fish_5_coloring.png',
   '/quest_coloring_map.png'
+];
 ];
 
 self.addEventListener('install', (e) => {
