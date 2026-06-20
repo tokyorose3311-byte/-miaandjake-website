@@ -445,17 +445,17 @@
     <a href="#game">🎮 Play</a>
     <a href="#youtube">▶️ Videos</a>
     <a href="#activities">🎨 Activities</a>
-<a href="/worksheets.html">📄 Worksheets</a>
 <a href="#messages">💌 Messages</a>
     <div class="nav-dropdown" id="eduDropdown">
       <button class="nav-dropdown-btn" id="eduDropdownBtn">🎓 For Educators ▾</button>
       <div class="nav-dropdown-content" id="eduDropdownMenu">
-        <a href="/worksheets.html" class="dd-price-row">
-  <div class="dd-price-left">
-    <span class="dd-price-title">📄Worksheets</span>
-    <span class="dd-price-note">Printable Science of Flight sheets</span>
-  </div>
-</a>
+        <a href="#" class="dd-price-row" onclick="accessWorksheets(event)">
+          <div class="dd-price-left">
+            <span class="dd-price-title">📄 Worksheets</span>
+            <span class="dd-price-note">Sign in to access printable sheets</span>
+          </div>
+          <span style="font-size:13px; color:var(--gold); font-weight:800;">🔐 Sign In</span>
+        </a>
 <div class="dd-divider"></div>
 
         <!-- Pricing rows -->
@@ -1172,6 +1172,21 @@ setTimeout(() => {
 
 // ── SERVICE WORKER ──
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
+
+// ── WORKSHEET ACCESS CHECK ──
+function accessWorksheets(e) {
+  e.preventDefault();
+  const token = sessionStorage.getItem('qfw_admin_session');
+  const expiry = parseInt(sessionStorage.getItem('qfw_admin_expiry') || '0');
+  if (token && Date.now() < expiry) {
+    // Logged in — go straight to worksheets
+    window.location.href = '/worksheets.html';
+  } else {
+    // Not logged in — redirect to login, then come back to worksheets
+    sessionStorage.setItem('qfw_redirect_after_login', '/worksheets.html');
+    window.location.href = '/admin-login.html';
+  }
+}
 </script>
 </body>
 </html>

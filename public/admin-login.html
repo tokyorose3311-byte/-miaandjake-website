@@ -283,7 +283,9 @@
     const token = sessionStorage.getItem(SESSION_KEY);
     const expiry = parseInt(sessionStorage.getItem(SESSION_EXPIRY_KEY) || '0');
     if (token && Date.now() < expiry) {
-      window.location.replace('/admin-dashboard.html');
+      const redirect = sessionStorage.getItem('qfw_redirect_after_login') || '/admin-dashboard.html';
+      sessionStorage.removeItem('qfw_redirect_after_login');
+      window.location.replace(redirect);
     }
     // Check lockout
     if (lockedUntil > Date.now()) {
@@ -329,7 +331,9 @@
 
       btn.textContent = '✅ Success! Redirecting...';
       btn.style.background = 'linear-gradient(135deg, #06d6a0, #04a97d)';
-      setTimeout(() => window.location.replace('/admin-dashboard.html'), 700);
+      const redirect = sessionStorage.getItem('qfw_redirect_after_login') || '/admin-dashboard.html';
+      sessionStorage.removeItem('qfw_redirect_after_login');
+      setTimeout(() => window.location.replace(redirect), 700);
     } else {
       failedAttempts++;
       sessionStorage.setItem('qfw_failed', failedAttempts.toString());

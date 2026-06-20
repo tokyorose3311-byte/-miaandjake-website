@@ -3,12 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>Worksheets – Quest for Wonders</title>
   <meta name="description" content="Free printable Science of Flight worksheets for kids, inspired by Quest for Wonders.">
   <meta name="theme-color" content="#0a1f44">
-  <!-- FIX #3: Removed manifest.json link — file did not exist, causing a 404.
-       Restore this line only if you create a valid /manifest.json PWA file:
-       <link rel="manifest" href="/manifest.json"> -->
+  <!-- Auth guard — must be logged in to view this page -->
+  <script>
+    (function() {
+      const token = sessionStorage.getItem('qfw_admin_session');
+      const expiry = parseInt(sessionStorage.getItem('qfw_admin_expiry') || '0');
+      if (!token || Date.now() >= expiry) {
+        // Save intended destination then redirect to login
+        sessionStorage.setItem('qfw_redirect_after_login', '/worksheets.html');
+        window.location.replace('/admin-login.html');
+      }
+    })();
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
   <style>
