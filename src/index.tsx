@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { serveStatic } from 'hono/middleware'
+import { serveStatic } from 'hono/cloudflare-workers'
 import { gameHTML } from './game-content'
 
 const app = new Hono()
@@ -67,6 +67,18 @@ app.get('/', (c) => {
     .nav-links a { color: var(--ocean-light); text-decoration: none; font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 30px; transition: background 0.2s; }
     .nav-links a:hover { background: rgba(0,180,216,0.2); color: var(--white); }
     .nav-yt { background: linear-gradient(135deg,#ff0000,#cc0000) !important; color: #fff !important; }
+    /* Buy Me a Coffee button */
+    .nav-coffee {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 30px;
+      background: linear-gradient(135deg, #ffdd00, #f7931e);
+      color: #1a1a1a !important; font-weight: 800 !important; font-size: 13px;
+      text-decoration: none;
+      box-shadow: 0 2px 12px rgba(255,193,0,0.4);
+      transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .nav-coffee:hover { transform: translateY(-2px) scale(1.05); filter: brightness(1.08); box-shadow: 0 4px 18px rgba(255,193,0,0.55); background: linear-gradient(135deg, #ffdd00, #f7931e) !important; }
 
     /* Educator Dropdown */
     .nav-dropdown { position: static; display: inline-block; }
@@ -527,6 +539,7 @@ app.get('/', (c) => {
       nav { padding: 10px 16px; }
       .nav-links > a { display: none; }
       .nav-links > a.nav-yt { display: inline-block; }
+      .nav-links > a.nav-coffee { display: inline-flex; }
       .nav-dropdown { display: inline-block; }
       .book-grid { grid-template-columns: 1fr; }
       section { padding: 50px 18px; }
@@ -543,6 +556,7 @@ app.get('/', (c) => {
 <nav>
   <a href="#" class="nav-logo">🌊 Quest for Wonders</a>
   <div class="nav-links">
+    <a href="https://www.buymeacoffee.com" target="_blank" class="nav-coffee">☕ Buy Me a Coffee</a>
     <a href="#book">📖 The Book</a>
     <a href="#game">🎮 Play</a>
     <a href="#youtube">▶️ Videos</a>
