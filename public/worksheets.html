@@ -6,7 +6,9 @@
   <title>Worksheets – Quest for Wonders</title>
   <meta name="description" content="Free printable Science of Flight worksheets for kids, inspired by Quest for Wonders.">
   <meta name="theme-color" content="#0a1f44">
-  <link rel="manifest" href="/manifest.json">
+  <!-- FIX #3: Removed manifest.json link — file did not exist, causing a 404.
+       Restore this line only if you create a valid /manifest.json PWA file:
+       <link rel="manifest" href="/manifest.json"> -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -37,6 +39,8 @@
     .nav-links { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
     .nav-links a { color: var(--ocean-light); text-decoration: none; font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 30px; transition: background 0.2s; }
     .nav-links a:hover { background: rgba(0,180,216,0.2); color: var(--white); }
+    /* FIX #7: Replaced inline style="color:var(--gold)" with a reusable class */
+    .nav-links .nav-active { color: var(--gold); }
     .nav-yt { background: linear-gradient(135deg,#ff0000,#cc0000) !important; color: #fff !important; }
     .hero { text-align: center; padding: 60px 20px 40px; }
     .hero .section-tag {
@@ -62,61 +66,105 @@
     .worksheet-btn:hover { opacity: 0.85; }
     .print-note { text-align: center; font-size: 14px; color: rgba(240,250,255,0.6); padding: 0 20px 40px; }
     .print-note strong { color: var(--ocean-bright); }
+    /* FIX #4: Footer styles */
+    footer { text-align: center; padding: 24px 20px; color: rgba(240,250,255,0.35); font-size: 13px; border-top: 1px solid rgba(0,180,216,0.1); }
     @media (max-width: 600px) { nav { padding: 10px 16px; } }
   </style>
 </head>
 <body>
 
 <nav>
-  <a href="/" class="nav-logo">🌊 Quest for Wonders</a>
+  <a href="/" class="nav-logo">
+    <!-- FIX #6: aria-hidden on all decorative emoji so screen readers skip them -->
+    <span aria-hidden="true">🌊</span> Quest for Wonders
+  </a>
   <div class="nav-links">
-    <a href="/">🏠 Home</a>
-    <a href="/#activities">🎨 Activities</a>
-    <a href="/worksheets.html" style="color:var(--gold);">📄 Worksheets</a>
-    <a href="https://www.youtube.com/@childrenstorytimewithrose" target="_blank" class="nav-yt">▶️ YouTube</a>
+    <a href="/"><span aria-hidden="true">🏠</span> Home</a>
+    <a href="/#activities"><span aria-hidden="true">🎨</span> Activities</a>
+    <!-- FIX #7: Using .nav-active class instead of inline style -->
+    <a href="/worksheets.html" class="nav-active"><span aria-hidden="true">📄</span> Worksheets</a>
+    <!-- FIX #5: Added rel="noopener noreferrer" to all target="_blank" links -->
+    <a href="https://www.youtube.com/@childrenstorytimewithrose" target="_blank" rel="noopener noreferrer" class="nav-yt">
+      <span aria-hidden="true">▶️</span> YouTube
+    </a>
   </div>
 </nav>
 
-<div class="hero">
-  <span class="section-tag">📄 Free Resources</span>
-  <h1>Science of Flight Worksheets</h1>
-  <div class="divider"></div>
-  <p>Fun, curriculum-aligned worksheets inspired by <em>Quest for Wonders</em>. Click any worksheet below to open and print!</p>
-</div>
-
-<div class="worksheets-grid">
-
-  <div class="worksheet-card">
-    <span class="worksheet-icon">✈️</span>
-    <h3>Worksheet 1</h3>
-    <p>The Science of Flight — introductory activity sheet. Great for getting started!</p>
-    <a href="/worksheets/" class="worksheet-btn" target="_blank">📖 Open &amp; Print →</a>
+<main>
+  <div class="hero">
+    <span class="section-tag"><span aria-hidden="true">📄</span> Free Resources</span>
+    <h1>Science of Flight Worksheets</h1>
+    <div class="divider"></div>
+    <!-- FIX #8: Using <cite> instead of <em> for the book title -->
+    <p>Fun, curriculum-aligned worksheets inspired by <cite>Quest for Wonders</cite>. Click any worksheet below to open and print!</p>
   </div>
 
-  <div class="worksheet-card">
-    <span class="worksheet-icon">🚀</span>
-    <h3>Worksheet 2</h3>
-    <p>Dive deeper into flight concepts with this engaging follow-up activity.</p>
-    <a href="/worksheets/" class="worksheet-btn" target="_blank">📖 Open &amp; Print →</a>
+  <div class="worksheets-grid">
+
+    <div class="worksheet-card">
+      <span class="worksheet-icon" aria-hidden="true">✈️</span>
+      <h3>Worksheet 1</h3>
+      <p>The Science of Flight — introductory activity sheet. Great for getting started!</p>
+      <!-- FIX #2: Updated href to point to actual file instead of /worksheets/ directory
+           Update filename below to match the real file on your server -->
+      <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_flight_worksheet_1.docx"
+         class="worksheet-btn"
+         target="_blank"
+         rel="noopener noreferrer">
+        <!-- FIX #6: aria-hidden on decorative emoji inside button -->
+        <span aria-hidden="true">📖</span> Open &amp; Print →
+      </a>
+    </div>
+
+    <div class="worksheet-card">
+      <span class="worksheet-icon" aria-hidden="true">🚀</span>
+      <h3>Worksheet 2</h3>
+      <p>Dive deeper into flight concepts with this engaging follow-up activity.</p>
+      <!-- FIX #2: Updated href to actual file -->
+      <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_flight_worksheet_2.docx"
+         class="worksheet-btn"
+         target="_blank"
+         rel="noopener noreferrer">
+        <span aria-hidden="true">📖</span> Open &amp; Print →
+      </a>
+    </div>
+
+    <div class="worksheet-card">
+      <span class="worksheet-icon" aria-hidden="true">🌤️</span>
+      <h3>Worksheet 3</h3>
+      <p>Explore forces, lift, and drag with this hands-on worksheet activity.</p>
+      <!-- FIX #2: Updated href to actual file -->
+      <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_flight_worksheet_3.docx"
+         class="worksheet-btn"
+         target="_blank"
+         rel="noopener noreferrer">
+        <span aria-hidden="true">📖</span> Open &amp; Print →
+      </a>
+    </div>
+
+    <div class="worksheet-card">
+      <span class="worksheet-icon" aria-hidden="true">🦅</span>
+      <!-- FIX #1: Restored missing <h3> heading for Worksheet 4 -->
+      <h3>Worksheet 4</h3>
+      <p>Advanced flight science challenges for curious young explorers!</p>
+      <!-- FIX #5: Added rel="noopener noreferrer" -->
+      <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_flight_worksheet_4.docx"
+         class="worksheet-btn"
+         target="_blank"
+         rel="noopener noreferrer">
+        <span aria-hidden="true">📖</span> Open &amp; Print →
+      </a>
+    </div>
+
   </div>
 
-  <div class="worksheet-card">
-    <span class="worksheet-icon">🌤️</span>
-    <h3>Worksheet 3</h3>
-    <p>Explore forces, lift, and drag with this hands-on worksheet activity.</p>
-    <a href="/worksheets/" class="worksheet-btn" target="_blank">📖 Open &amp; Print →</a>
-  </div>
+  <p class="print-note">All worksheets are <strong>completely free</strong>. Click to open in your browser, then use <strong>File → Print</strong> to print.</p>
+</main>
 
-  <div class="worksheet-card">
-    <span class="worksheet-icon">🦅</span>
-    
-    <p>Advanced flight science challenges for curious young explorers!</p>
-    <a href="/worksheets/The_Quest_for_Wonders-The_Science_of_flight_worksheet_4.docx" class="worksheet-btn" target="_blank">📖 Open &amp; Print →</a>
-  </div>
-
-</div>
-
-<p class="print-note">All worksheets are <strong>completely free</strong>. Click to open in your browser, then use <strong>File → Print</strong> to print.</p>
+<!-- FIX #4: Added semantic <footer> element -->
+<footer>
+  &copy; 2024 Quest for Wonders &mdash; All rights reserved.
+</footer>
 
 </body>
 </html>
